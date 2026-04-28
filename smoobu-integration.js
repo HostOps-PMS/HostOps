@@ -13,7 +13,7 @@
 
   // ─── CONFIG ──────────────────────────────────────────────────────
   // Palitan mo ito ng URL ng deployed proxy mo sa Render
-  const PROXY_BASE = 'https://YOUR-APP-NAME.onrender.com';
+  const PROXY_BASE = 'https://hostpilot-smoobu.onrender.com';
   // Para sa local testing: 'http://localhost:3000'
 
   // ─── HELPERS ─────────────────────────────────────────────────────
