@@ -1,0 +1,90 @@
+<!--
+  ═══════════════════════════════════════════════════════════════
+  HostPilot Email Verification
+  ═══════════════════════════════════════════════════════════════
+  GHL Funnel page sa /verify
+  Pinupuntahan ito kapag click yung "Verify my email" sa email.
+  ═══════════════════════════════════════════════════════════════
+-->
+<style>
+  .hp-verify-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;background:#eaf8f1;padding:20px;}
+  .hp-verify-card{background:#fff;border-radius:24px;padding:48px 40px;max-width:440px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(4,14,9,.08);}
+  .hp-verify-icon{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;background:#d4f0e4;color:#26a676;}
+  .hp-verify-icon.error{background:#fff0ee;color:#c13515;}
+  .hp-verify-icon.loading{background:#f0f5f2;color:#9ab8a9;}
+  .hp-verify-h1{font-family:'Sora',sans-serif;font-weight:800;font-size:1.5rem;color:#0c1c14;margin:0 0 12px;}
+  .hp-verify-p{color:#6a8b7c;line-height:1.6;margin:0 0 24px;}
+  .hp-verify-btn{display:inline-block;padding:14px 32px;background:#26a676;color:#fff;text-decoration:none;border-radius:100px;font-weight:700;font-size:.95rem;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .hp-spinner{animation:spin 1s linear infinite;}
+</style>
+
+<div class="hp-verify-wrap">
+  <div class="hp-verify-card" id="hp-verify-card">
+    <div class="hp-verify-icon loading">
+      <svg class="hp-spinner" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+    </div>
+    <h1 class="hp-verify-h1">Verifying your email...</h1>
+    <p class="hp-verify-p">Just a moment please.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  const API_BASE = 'https://YOUR-APP.onrender.com'; // palitan!
+  const LOGIN_URL = '/login';
+
+  const params = new URLSearchParams(window.location.search);
+  const email = params.get('email');
+  const token = params.get('token');
+
+  const card = document.getElementById('hp-verify-card');
+
+  function show(iconClass, iconHtml, title, message, btnText, btnHref) {
+    card.innerHTML = `
+      <div class="hp-verify-icon ${iconClass}">${iconHtml}</div>
+      <h1 class="hp-verify-h1">${title}</h1>
+      <p class="hp-verify-p">${message}</p>
+      ${btnText ? `<a href="${btnHref}" class="hp-verify-btn">${btnText}</a>` : ''}
+    `;
+  }
+
+  if (!email || !token) {
+    show('error',
+      '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+      'Invalid link',
+      'This verification link is missing required information.',
+      'Go to login', LOGIN_URL);
+    return;
+  }
+
+  fetch(API_BASE + '/auth/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, token }),
+  })
+    .then(r => r.json().then(d => ({ ok: r.ok, data: d })))
+    .then(({ ok, data }) => {
+      if (ok) {
+        show('',
+          '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+          'Email verified!',
+          'Your account is ready. You can now sign in.',
+          'Sign in →', LOGIN_URL);
+      } else {
+        show('error',
+          '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+          'Verification failed',
+          data.error || 'This link may have expired. Please try registering again.',
+          'Go to login', LOGIN_URL);
+      }
+    })
+    .catch(() => {
+      show('error',
+        '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+        'Connection error',
+        'Could not reach the server. Please try again.',
+        'Try again', window.location.href);
+    });
+})();
+</script>

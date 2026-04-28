@@ -1,0 +1,84 @@
+<!--
+  ═══════════════════════════════════════════════════════════════
+  HostPilot Password Reset
+  ═══════════════════════════════════════════════════════════════
+  GHL Funnel page sa /reset
+  ═══════════════════════════════════════════════════════════════
+-->
+<style>
+  .hp-rst-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;background:#eaf8f1;padding:20px;}
+  .hp-rst-card{background:#fff;border-radius:24px;padding:40px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(4,14,9,.08);}
+  .hp-rst-h1{font-family:'Sora',sans-serif;font-weight:800;font-size:1.4rem;color:#0c1c14;margin:0 0 8px;}
+  .hp-rst-sub{color:#6a8b7c;font-size:.88rem;margin:0 0 24px;}
+  .hp-rst-label{display:block;font-size:.78rem;font-weight:700;color:#2a4e3c;margin-bottom:6px;}
+  .hp-rst-input{width:100%;padding:13px 16px;border:1.5px solid #e3ede8;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:.95rem;color:#0c1c14;background:#f8fbf9;outline:none;box-sizing:border-box;margin-bottom:14px;}
+  .hp-rst-input:focus{border-color:#26a676;background:#fff;box-shadow:0 0 0 3px rgba(38,166,118,.1);}
+  .hp-rst-btn{width:100%;padding:14px;background:#26a676;color:#fff;border:none;border-radius:100px;font-weight:700;cursor:pointer;font-size:.95rem;}
+  .hp-rst-btn:disabled{opacity:.5;cursor:not-allowed;}
+  .hp-rst-msg{padding:12px 14px;border-radius:10px;font-size:.85rem;margin-bottom:16px;}
+  .hp-rst-msg.error{background:#fff0ee;color:#c13515;border:1px solid #ffd5ce;}
+  .hp-rst-msg.success{background:#d4f0e4;color:#1e8760;border:1px solid #b7e4cf;}
+</style>
+
+<div class="hp-rst-wrap">
+  <div class="hp-rst-card">
+    <h1 class="hp-rst-h1">Set your new password</h1>
+    <p class="hp-rst-sub">Choose a strong password (min 8 characters).</p>
+    <div id="hp-rst-msg"></div>
+    <form id="hp-rst-form">
+      <label class="hp-rst-label">New password</label>
+      <input class="hp-rst-input" type="password" name="password" required minlength="8">
+      <label class="hp-rst-label">Confirm password</label>
+      <input class="hp-rst-input" type="password" name="confirm" required minlength="8">
+      <button class="hp-rst-btn" type="submit">Reset Password</button>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  const API_BASE = 'https://YOUR-APP.onrender.com'; // palitan!
+  const LOGIN_URL = '/login';
+
+  const params = new URLSearchParams(window.location.search);
+  const email = params.get('email');
+  const token = params.get('token');
+  const msgEl = document.getElementById('hp-rst-msg');
+
+  function showMsg(text, type) {
+    msgEl.innerHTML = `<div class="hp-rst-msg ${type}">${text}</div>`;
+  }
+
+  if (!email || !token) {
+    showMsg('Invalid reset link.', 'error');
+    document.getElementById('hp-rst-form').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('hp-rst-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    if (fd.get('password') !== fd.get('confirm')) {
+      showMsg('Passwords do not match.', 'error'); return;
+    }
+    const btn = e.target.querySelector('button');
+    btn.disabled = true; btn.textContent = 'Resetting...';
+
+    try {
+      const res = await fetch(API_BASE + '/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, token, newPassword: fd.get('password') }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Reset failed');
+
+      showMsg('Password reset! Redirecting to sign in...', 'success');
+      setTimeout(() => { window.location.href = LOGIN_URL; }, 1500);
+    } catch (err) {
+      showMsg(err.message, 'error');
+      btn.disabled = false; btn.textContent = 'Reset Password';
+    }
+  });
+})();
+</script>

@@ -1,17 +1,27 @@
 {
-  "name": "hostpilot-smoobu-proxy",
+  "name": "hostpilot-backend",
   "version": "1.0.0",
-  "description": "Proxy server for HostPilot dashboard — calls Smoobu API securely",
-  "main": "server.js",
+  "description": "HostPilot multi-tenant backend with JWT auth and Smoobu integration",
+  "main": "src/server.js",
+  "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "express": "^4.19.2"
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.0",
+    "resend": "^3.5.0",
+    "zod": "^3.23.8"
   }
 }
