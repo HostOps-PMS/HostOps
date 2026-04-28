@@ -1,8 +1,8 @@
 // src/routes/auth.js
 import express from 'express';
 import { z } from 'zod';
-import User from './models/user.js';
-import RefreshToken from './models/refreshToken.js';
+import User from '../models/user.js';
+import RefreshToken from '../models/refreshToken.js';
 import {
   signAccessToken, signRefreshToken, verifyRefreshToken,
   refreshTokenExpiry, randomToken, hashToken
@@ -38,7 +38,6 @@ router.post('/register', async (req, res, next) => {
       return res.status(409).json({ error: 'Email already registered' });
     }
 
-    // Create verification token (raw → email, hashed → DB)
     const rawToken = randomToken();
     const hashed = hashToken(rawToken);
 
@@ -51,13 +50,11 @@ router.post('/register', async (req, res, next) => {
       verifyTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
-    // Send email
     const link = `${process.env.FRONTEND_URL}/verify?token=${rawToken}&email=${encodeURIComponent(user.email)}`;
     try {
       await sendVerificationEmail(user.email, user.firstName, link);
     } catch (e) {
       console.error('Email send failed:', e);
-      // Don't reveal email failures to client; user can request resend
     }
 
     res.status(201).json({
@@ -74,8 +71,6 @@ router.post('/register', async (req, res, next) => {
 
 // ─────────────────────────────────────────────────────────────────
 // POST /auth/verify
-// Confirm email using token
-// ─────────────────────────────────────────────────────────────────
 router.post('/verify', async (req, res, next) => {
   try {
     const { email, token } = req.body;
@@ -105,8 +100,6 @@ router.post('/verify', async (req, res, next) => {
 
 // ─────────────────────────────────────────────────────────────────
 // POST /auth/login
-// Returns access token + sets refresh token as httpOnly cookie
-// ─────────────────────────────────────────────────────────────────
 router.post('/login', async (req, res, next) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
@@ -122,7 +115,6 @@ router.post('/login', async (req, res, next) => {
     const accessToken = signAccessToken(user);
     const refreshToken = signRefreshToken(user);
 
-    // Store refresh token (hashed) in DB
     await RefreshToken.create({
       userId: user._id,
       token: hashToken(refreshToken),
@@ -134,7 +126,6 @@ router.post('/login', async (req, res, next) => {
     user.lastLoginAt = new Date();
     await user.save();
 
-    // Set refresh token as httpOnly cookie (secure even from XSS)
     res.cookie('rt', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -157,8 +148,6 @@ router.post('/login', async (req, res, next) => {
 
 // ─────────────────────────────────────────────────────────────────
 // POST /auth/refresh
-// Use refresh token cookie to get new access token (with rotation)
-// ─────────────────────────────────────────────────────────────────
 router.post('/refresh', async (req, res, next) => {
   try {
     const rawToken = req.cookies?.rt;
@@ -179,7 +168,6 @@ router.post('/refresh', async (req, res, next) => {
     const user = await User.findById(decoded.sub);
     if (!user) return res.status(401).json({ error: 'User not found' });
 
-    // Rotate: invalidate old, issue new
     const newRefreshToken = signRefreshToken(user);
     stored.revokedAt = new Date();
     stored.replacedBy = hashToken(newRefreshToken);
@@ -207,8 +195,6 @@ router.post('/refresh', async (req, res, next) => {
 
 // ─────────────────────────────────────────────────────────────────
 // POST /auth/logout
-// Revoke refresh token
-// ─────────────────────────────────────────────────────────────────
 router.post('/logout', async (req, res, next) => {
   try {
     const rawToken = req.cookies?.rt;
@@ -225,27 +211,22 @@ router.post('/logout', async (req, res, next) => {
 
 // ─────────────────────────────────────────────────────────────────
 // GET /auth/me
-// Return current user
-// ─────────────────────────────────────────────────────────────────
 router.get('/me', requireAuth, (req, res) => {
   res.json({ user: req.user.toJSON() });
 });
 
 // ─────────────────────────────────────────────────────────────────
 // POST /auth/forgot-password
-// Send reset link
-// ─────────────────────────────────────────────────────────────────
 router.post('/forgot-password', async (req, res, next) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email required' });
 
     const user = await User.findOne({ email: email.toLowerCase() });
-    // Always return success to prevent email enumeration
     if (user) {
       const rawToken = randomToken();
       user.resetToken = hashToken(rawToken);
-      user.resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1h
+      user.resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
       await user.save();
 
       const link = `${process.env.FRONTEND_URL}/reset?token=${rawToken}&email=${encodeURIComponent(user.email)}`;
@@ -262,8 +243,6 @@ router.post('/forgot-password', async (req, res, next) => {
 
 // ─────────────────────────────────────────────────────────────────
 // POST /auth/reset-password
-// Set new password using reset token
-// ─────────────────────────────────────────────────────────────────
 router.post('/reset-password', async (req, res, next) => {
   try {
     const { email, token, newPassword } = req.body;
@@ -287,7 +266,6 @@ router.post('/reset-password', async (req, res, next) => {
     user.resetTokenExpiry = undefined;
     await user.save();
 
-    // Invalidate all existing refresh tokens for security
     await RefreshToken.updateMany(
       { userId: user._id, revokedAt: null },
       { revokedAt: new Date() }

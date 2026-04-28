@@ -1,6 +1,6 @@
 // src/middleware/auth.js
 import { verifyAccessToken } from '../utils/tokens.js';
-import User from '../models/User.js';
+import User from '../models/user.js';
 
 export async function requireAuth(req, res, next) {
   try {

@@ -42,25 +42,19 @@ async function smoobuRequest(path, apiKey) {
   return data;
 }
 
-// ── Determine which API key to use ──────────────────────────────
-// Single-Smoobu mode: always use shared key.
-// Future multi-Smoobu mode: use user.smoobuApiKey if set.
 export function getApiKeyForUser(user) {
-  if (user.smoobuApiKey) return user.smoobuApiKey; // future
-  return process.env.SMOOBU_API_KEY;               // current
+  if (user.smoobuApiKey) return user.smoobuApiKey;
+  return process.env.SMOOBU_API_KEY;
 }
 
-// ── Filter properties to only those belonging to this user ──────
 function belongsToUser(propertyName, user) {
-  if (user.role === 'admin') return true;          // admin sees all
-  if (!user.propertyTagPrefix) return false;       // no prefix = no access
+  if (user.role === 'admin') return true;
+  if (!user.propertyTagPrefix) return false;
   return propertyName?.toLowerCase().startsWith(
     user.propertyTagPrefix.toLowerCase()
   );
 }
 
-// ── Strip the prefix from display name ──────────────────────────
-// "charmaine_BGC Studio" → "BGC Studio"
 function displayName(name, user) {
   if (!user.propertyTagPrefix) return name;
   const prefix = user.propertyTagPrefix.toLowerCase();
@@ -69,8 +63,6 @@ function displayName(name, user) {
   }
   return name;
 }
-
-// ── PUBLIC API ──────────────────────────────────────────────────
 
 export async function getApartments(user) {
   const apiKey = getApiKeyForUser(user);
@@ -84,7 +76,6 @@ export async function getApartments(user) {
 export async function getBookings(user, { from, to, apartmentId, page = 1, pageSize = 100 } = {}) {
   const apiKey = getApiKeyForUser(user);
 
-  // First, get list of apartments that belong to this user
   const apartmentsData = await smoobuRequest('/apartments', apiKey);
   const userApartmentIds = new Set(
     (apartmentsData.apartments || [])
@@ -92,7 +83,6 @@ export async function getBookings(user, { from, to, apartmentId, page = 1, pageS
       .map(a => a.id)
   );
 
-  // Build query
   const params = new URLSearchParams();
   if (from) params.append('from', from);
   if (to)   params.append('to', to);
@@ -103,7 +93,6 @@ export async function getBookings(user, { from, to, apartmentId, page = 1, pageS
 
   const data = await smoobuRequest(`/reservations?${params}`, apiKey);
 
-  // Filter bookings to only this user's properties
   const bookings = (data.bookings || [])
     .filter(b => userApartmentIds.has(b.apartment?.id))
     .map(b => ({
@@ -120,7 +109,6 @@ export async function getBookings(user, { from, to, apartmentId, page = 1, pageS
 export async function getRates(user, { apartmentIds, start, end }) {
   const apiKey = getApiKeyForUser(user);
 
-  // Verify ownership of all requested apartments
   const apartmentsData = await smoobuRequest('/apartments', apiKey);
   const userApartmentIds = new Set(
     (apartmentsData.apartments || [])
@@ -140,7 +128,6 @@ export async function getRates(user, { apartmentIds, start, end }) {
   );
 }
 
-// ── Aggregated dashboard data (filtered per user) ───────────────
 export async function getDashboard(user, { from, to } = {}) {
   const today = new Date();
   const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
