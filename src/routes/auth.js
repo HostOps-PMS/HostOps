@@ -1,8 +1,8 @@
 // src/routes/auth.js
 import express from 'express';
 import { z } from 'zod';
-import User from '../models/User.js';
-import RefreshToken from '../models/RefreshToken.js';
+import User from './models/user.js';
+import RefreshToken from './models/refreshToken.js';
 import {
   signAccessToken, signRefreshToken, verifyRefreshToken,
   refreshTokenExpiry, randomToken, hashToken
