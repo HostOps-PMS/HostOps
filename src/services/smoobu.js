@@ -1,8 +1,10 @@
 // src/services/smoobu.js
 //
-// Smoobu API wrapper na may caching at per-user filtering.
+// Smoobu API wrapper with PAGINATION, proper cancellation counting,
+// at flexible date range support.
+//
 // Single-Smoobu mode: lahat tumatawag using SMOOBU_API_KEY,
-// pero ang results are filtered by user.propertyTagPrefix.
+// pero ang results are filtered by user.propertyTagPrefix (or admin sees all).
 
 const BASE = 'https://login.smoobu.com/api';
 const cache = new Map();
@@ -42,6 +44,41 @@ async function smoobuRequest(path, apiKey) {
   return data;
 }
 
+// ─────────────────────────────────────────────────────────────────
+// PAGINATED FETCH — iterate through all pages until done
+// Smoobu max page_size = 100. May "page_count" sa response.
+// ─────────────────────────────────────────────────────────────────
+async function smoobuRequestAllPages(basePath, apiKey, { showCancellation = true } = {}) {
+  const allBookings = [];
+  let page = 1;
+  let totalPages = 1;
+  const PAGE_SIZE = 100;
+
+  do {
+    const sep = basePath.includes('?') ? '&' : '?';
+    const path = `${basePath}${sep}page=${page}&pageSize=${PAGE_SIZE}${showCancellation ? '&showCancellation=1' : ''}`;
+    const data = await smoobuRequest(path, apiKey);
+
+    if (data.bookings && Array.isArray(data.bookings)) {
+      allBookings.push(...data.bookings);
+    }
+
+    totalPages = data.page_count || 1;
+    page++;
+
+    // Safety: max 50 pages (5000 bookings) para hindi infinite loop
+    if (page > 50) {
+      console.warn('Smoobu pagination exceeded 50 pages, stopping');
+      break;
+    }
+  } while (page <= totalPages);
+
+  return { bookings: allBookings, total: allBookings.length };
+}
+
+// ─────────────────────────────────────────────────────────────────
+// USER FILTERING
+// ─────────────────────────────────────────────────────────────────
 export function getApiKeyForUser(user) {
   if (user.smoobuApiKey) return user.smoobuApiKey;
   return process.env.SMOOBU_API_KEY;
@@ -64,6 +101,10 @@ function displayName(name, user) {
   return name;
 }
 
+// ─────────────────────────────────────────────────────────────────
+// PUBLIC API
+// ─────────────────────────────────────────────────────────────────
+
 export async function getApartments(user) {
   const apiKey = getApiKeyForUser(user);
   const data = await smoobuRequest('/apartments', apiKey);
@@ -73,9 +114,10 @@ export async function getApartments(user) {
   return { apartments: filtered };
 }
 
-export async function getBookings(user, { from, to, apartmentId, page = 1, pageSize = 100 } = {}) {
+export async function getBookings(user, { from, to, apartmentId, showCancellation = true } = {}) {
   const apiKey = getApiKeyForUser(user);
 
+  // Get user's apartment IDs first (for filtering)
   const apartmentsData = await smoobuRequest('/apartments', apiKey);
   const userApartmentIds = new Set(
     (apartmentsData.apartments || [])
@@ -83,17 +125,21 @@ export async function getBookings(user, { from, to, apartmentId, page = 1, pageS
       .map(a => a.id)
   );
 
+  // Build base path with filters
   const params = new URLSearchParams();
   if (from) params.append('from', from);
   if (to)   params.append('to', to);
   if (apartmentId) params.append('apartmentId', apartmentId);
-  params.append('page', page);
-  params.append('pageSize', pageSize);
-  params.append('excludeBlocked', 'true');
+  // Note: hindi tayo nag-pa-pass ng excludeBlocked — gusto natin makuha lahat,
+  // tapos manual natin i-filter sa frontend kung blocked vs reservation
 
-  const data = await smoobuRequest(`/reservations?${params}`, apiKey);
+  const basePath = `/reservations?${params.toString()}`;
 
-  const bookings = (data.bookings || [])
+  // ── PAGINATED FETCH ──
+  const { bookings: allBookings } = await smoobuRequestAllPages(basePath, apiKey, { showCancellation });
+
+  // Filter to user's properties + apply display name
+  const bookings = allBookings
     .filter(b => userApartmentIds.has(b.apartment?.id))
     .map(b => ({
       ...b,
@@ -103,7 +149,7 @@ export async function getBookings(user, { from, to, apartmentId, page = 1, pageS
       },
     }));
 
-  return { ...data, bookings };
+  return { bookings, total: bookings.length };
 }
 
 export async function getRates(user, { apartmentIds, start, end }) {
@@ -128,65 +174,90 @@ export async function getRates(user, { apartmentIds, start, end }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────
+// AGGREGATED DASHBOARD
+// Default: Year-to-date (Jan 1 to today)
+// Accepts: ?from=YYYY-MM-DD&to=YYYY-MM-DD
+// ─────────────────────────────────────────────────────────────────
 export async function getDashboard(user, { from, to } = {}) {
   const today = new Date();
-  const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  const lastOfMonth  = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  const fmt = d => d.toISOString().slice(0, 10);
-  const fromDate = from || fmt(firstOfMonth);
-  const toDate   = to   || fmt(lastOfMonth);
 
+  // ── Default: Year-to-date ──
+  const startOfYear = new Date(today.getFullYear(), 0, 1);
+  const fmt = d => d.toISOString().slice(0, 10);
+
+  const fromDate = from || fmt(startOfYear);
+  const toDate   = to   || fmt(today);
+
+  // Fetch data
   const [apartmentsData, bookingsData] = await Promise.all([
     getApartments(user),
-    getBookings(user, { from: fromDate, to: toDate }),
+    getBookings(user, { from: fromDate, to: toDate, showCancellation: true }),
   ]);
 
   const properties = apartmentsData.apartments || [];
-  const bookings   = bookingsData.bookings || [];
+  const allBookings = bookingsData.bookings || [];
 
-  let totalRevenue  = 0;
-  let totalNights   = 0;
+  // ── Compute nights for a booking ──
+  function computeNights(b) {
+    if (!b.arrival || !b.departure) return 0;
+    const ms = new Date(b.departure) - new Date(b.arrival);
+    return Math.max(1, Math.round(ms / (1000 * 60 * 60 * 24)));
+  }
+
+  // ── Aggregate stats ──
+  let totalRevenue = 0;
+  let totalNights = 0;
+  let totalBookings = 0;
   let cancellations = 0;
-  const byChannel   = {};
+  let cancellationNights = 0;
+  const byChannel = {};
 
-  bookings.forEach(b => {
-    const nights = Math.max(1, Math.round(
-      (new Date(b.departure) - new Date(b.arrival)) / (1000 * 60 * 60 * 24)
-    ));
+  allBookings.forEach(b => {
+    const nights = computeNights(b);
 
     if (b.type === 'cancellation') {
       cancellations++;
+      cancellationNights += nights;
+      return;
+    }
+
+    // Skip blocked bookings (manual blocks, hindi totoong reservation)
+    if (b['is-blocked-booking']) {
       return;
     }
 
     totalRevenue += Number(b.price) || 0;
-    totalNights  += nights;
+    totalNights += nights;
+    totalBookings++;
 
     const ch = b.channel?.name || 'Direct';
     byChannel[ch] = byChannel[ch] || { revenue: 0, bookings: 0, nights: 0 };
-    byChannel[ch].revenue  += Number(b.price) || 0;
+    byChannel[ch].revenue += Number(b.price) || 0;
     byChannel[ch].bookings += 1;
-    byChannel[ch].nights   += nights;
+    byChannel[ch].nights += nights;
   });
 
+  // ── Occupancy rate ──
   const daysInRange = Math.max(1, Math.round(
     (new Date(toDate) - new Date(fromDate)) / (1000 * 60 * 60 * 24)
-  ));
+  )) + 1; // inclusive
   const propsCount = properties.length || 1;
   const totalAvailableNights = daysInRange * propsCount;
   const occupancyPct = Math.min(100, Math.round((totalNights / totalAvailableNights) * 100));
 
   return {
-    period: { from: fromDate, to: toDate },
+    period: { from: fromDate, to: toDate, days: daysInRange },
     stats: {
       revenue: totalRevenue,
-      bookings: bookings.filter(b => b.type !== 'cancellation').length,
+      bookings: totalBookings,
       cancellations,
+      cancellationNights,
       nights: totalNights,
       occupancy: occupancyPct,
     },
     byChannel,
     properties,
-    bookings,
+    bookings: allBookings,
   };
 }
