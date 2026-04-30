@@ -346,3 +346,84 @@ export async function getDashboard(user, { from, to } = {}) {
     totalThreads: inboxData.totalThreads,
   };
 }
+
+// ─────────────────────────────────────────────────────────────────
+// MESSAGING — Reply to guest + Get full conversation
+// ─────────────────────────────────────────────────────────────────
+
+// Verify yung reservation belongs to user (security check)
+async function verifyReservationOwnership(user, reservationId) {
+  const apiKey = getApiKeyForUser(user);
+  const apartmentsData = await smoobuRequest('/apartments', apiKey);
+  const userApartmentIds = new Set(
+    (apartmentsData.apartments || [])
+      .filter(a => belongsToUser(a.name, user))
+      .map(a => a.id)
+  );
+
+  // Fetch reservations to find this specific one and verify apartment
+  // We use a wide date range to catch any reservation
+  const today = new Date();
+  const twoYearsAgo = new Date();
+  twoYearsAgo.setFullYear(today.getFullYear() - 2);
+  const twoYearsAhead = new Date();
+  twoYearsAhead.setFullYear(today.getFullYear() + 2);
+  const fmt = d => d.toISOString().slice(0, 10);
+
+  const { bookings } = await smoobuRequestAllPages(
+    `/reservations?from=${fmt(twoYearsAgo)}&to=${fmt(twoYearsAhead)}`,
+    apiKey,
+    { showCancellation: true }
+  );
+
+  const reservation = bookings.find(b => String(b.id) === String(reservationId));
+  if (!reservation) {
+    throw new Error('Reservation not found');
+  }
+  if (!userApartmentIds.has(reservation.apartment?.id)) {
+    throw new Error('Unauthorized: reservation does not belong to your account');
+  }
+  return reservation;
+}
+
+// Get all messages for a reservation
+export async function getReservationMessages(user, reservationId) {
+  await verifyReservationOwnership(user, reservationId);
+  const apiKey = getApiKeyForUser(user);
+  return smoobuRequest(`/reservations/${reservationId}/messages`, apiKey);
+}
+
+// Send a reply to a guest
+export async function sendReplyToGuest(user, reservationId, { subject, messageBody }) {
+  await verifyReservationOwnership(user, reservationId);
+  const apiKey = getApiKeyForUser(user);
+
+  const res = await fetch(
+    `${BASE}/reservations/${reservationId}/messages/send-message-to-guest`,
+    {
+      method: 'POST',
+      headers: {
+        'Api-Key': apiKey,
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+      },
+      body: JSON.stringify({
+        subject: subject || 'Re: Your message',
+        messageBody: messageBody,
+      }),
+    }
+  );
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Smoobu send failed ${res.status}: ${text}`);
+  }
+
+  // Invalidate cache so next fetch shows the new message
+  cache.delete(`${apiKey}:/reservations/${reservationId}/messages`);
+  for (const key of cache.keys()) {
+    if (key.includes('/threads')) cache.delete(key);
+  }
+
+  return res.json();
+}

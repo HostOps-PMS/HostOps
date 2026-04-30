@@ -2,7 +2,8 @@
 import express from 'express';
 import { requireAuth } from '../middleware/auth.js';
 import {
-  getApartments, getBookings, getRates, getDashboard
+  getApartments, getBookings, getRates, getDashboard,
+  getReservationMessages, sendReplyToGuest
 } from '../services/smoobu.js';
 
 const router = express.Router();
@@ -50,6 +51,42 @@ router.get('/rates', async (req, res, next) => {
     });
     res.json(data);
   } catch (err) { next(err); }
+});
+
+// POST /api/messages/reply — Send a reply to a guest
+router.post('/messages/reply', async (req, res, next) => {
+  try {
+    const { reservationId, subject, messageBody } = req.body;
+    if (!reservationId || !messageBody) {
+      return res.status(400).json({ error: 'reservationId and messageBody are required' });
+    }
+    const result = await sendReplyToGuest(req.user, reservationId, { subject, messageBody });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    if (err.message.includes('Unauthorized')) {
+      return res.status(403).json({ error: err.message });
+    }
+    if (err.message.includes('not found')) {
+      return res.status(404).json({ error: err.message });
+    }
+    next(err);
+  }
+});
+
+// GET /api/messages/:reservationId — Get full conversation
+router.get('/messages/:reservationId', async (req, res, next) => {
+  try {
+    const data = await getReservationMessages(req.user, req.params.reservationId);
+    res.json(data);
+  } catch (err) {
+    if (err.message.includes('Unauthorized')) {
+      return res.status(403).json({ error: err.message });
+    }
+    if (err.message.includes('not found')) {
+      return res.status(404).json({ error: err.message });
+    }
+    next(err);
+  }
 });
 
 export default router;
