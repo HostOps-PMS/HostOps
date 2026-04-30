@@ -175,13 +175,12 @@ export async function getRates(user, { apartmentIds, start, end }) {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// MESSAGING — Get inbox (latest messages from recent reservations)
+// MESSAGING — Get inbox via /threads (includes inquiries + bookings)
 // ─────────────────────────────────────────────────────────────────
-
-export async function getInbox(user, { limit = 5, daysBack = 60 } = {}) {
+export async function getInbox(user, { limit = 5 } = {}) {
   const apiKey = getApiKeyForUser(user);
 
-  // Get apartments owned by user (for filtering)
+  // Get user's apartments (for filtering)
   const apartmentsData = await smoobuRequest('/apartments', apiKey);
   const userApartmentIds = new Set(
     (apartmentsData.apartments || [])
@@ -189,58 +188,66 @@ export async function getInbox(user, { limit = 5, daysBack = 60 } = {}) {
       .map(a => a.id)
   );
 
-  // Get recent bookings (last X days)
-  const today = new Date();
-  const from = new Date(today);
-  from.setDate(from.getDate() - daysBack);
-  const fmt = d => d.toISOString().slice(0, 10);
+  // Paginate through ALL threads (max 5 pages safety)
+  const allThreads = [];
+  let page = 1;
+  const PAGE_SIZE = 50;
 
-  const { bookings } = await smoobuRequestAllPages(
-    `/reservations?from=${fmt(from)}&to=${fmt(today)}`,
-    apiKey,
-    { showCancellation: false }
-  );
+  try {
+    while (page <= 5) {
+      const data = await smoobuRequest(
+        `/threads?page=${page}&pageSize=${PAGE_SIZE}`,
+        apiKey
+      );
+      const threads = data.threads || [];
+      allThreads.push(...threads);
 
-  // Filter user's bookings, sort by most recent
-  const recent = bookings
-    .filter(b => userApartmentIds.has(b.apartment?.id))
-    .filter(b => !b['is-blocked-booking'] && b.type !== 'cancellation')
-    .sort((a, b) => new Date(b['created-at']) - new Date(a['created-at']))
-    .slice(0, limit * 2); // get extra para may buffer kung wala silang messages
+      const totalPages = data.page_count || 1;
+      if (page >= totalPages) break;
+      page++;
+    }
+  } catch (e) {
+    console.warn('Threads fetch failed:', e.message);
+    return { threads: [], totalUnread: 0 };
+  }
 
-  // Fetch messages for each reservation in parallel
-  const threads = await Promise.allSettled(
-    recent.map(async (b) => {
-      try {
-        const msgData = await smoobuRequest(`/reservations/${b.id}/messages`, apiKey);
-        const messages = msgData.messages || msgData || [];
-        const msgArr = Array.isArray(messages) ? messages : [];
-        if (msgArr.length === 0) return null;
-
-        const latest = msgArr[msgArr.length - 1];
-        return {
-          reservationId: b.id,
-          guestName: b['guest-name'],
-          property: displayName(b.apartment?.name, user),
-          channel: b.channel?.name || 'Direct',
-          latestMessage: {
-            body: latest.message || latest.messageBody || latest.body || '',
-            createdAt: latest['created-at'] || latest.createdAt || latest.date || null,
-            fromGuest: latest.type === 'incoming' || latest.from === 'guest' || latest.direction === 'incoming',
-          },
-          totalMessages: msgArr.length,
-        };
-      } catch (e) {
-        return null;
-      }
+  // Filter to user's apartments + sort by latest message date
+  const filtered = allThreads
+    .filter(t => t.apartment && userApartmentIds.has(t.apartment.id))
+    .sort((a, b) => {
+      const aDate = a.latest_message && a.latest_message.created_at;
+      const bDate = b.latest_message && b.latest_message.created_at;
+      return new Date(bDate || 0) - new Date(aDate || 0);
     })
-  );
+    .slice(0, limit);
+
+  // Count total unread for user's properties
+  const totalUnread = allThreads
+    .filter(t => t.apartment && userApartmentIds.has(t.apartment.id))
+    .reduce((sum, t) => sum + (t.unread_messages || 0), 0);
 
   return {
-    threads: threads
-      .filter(r => r.status === 'fulfilled' && r.value)
-      .map(r => r.value)
-      .slice(0, limit),
+    threads: filtered.map(t => {
+      const msg = t.latest_message || {};
+      return {
+        reservationId: t.booking && t.booking.id,
+        guestName: (t.booking && t.booking.guest_name) || 'Guest',
+        property: displayName(t.apartment && t.apartment.name, user),
+        // Note: /threads endpoint may not return channel directly
+        // You may need to enrich this from /reservations/{id} call if needed
+        channel: t.channel?.name || t.booking?.channel?.name || 'Direct',
+        latestMessage: {
+          body: msg.text_content || msg.html_content || '',
+          subject: msg.subject || '',
+          createdAt: msg.created_at || null,
+          fromGuest: msg.type === 1 || msg.direction === 'incoming',
+        },
+        unread: t.unread_messages || 0,
+        bookingType: t.booking?.type || null, // Para makita kung inquiry or booking
+      };
+    }),
+    totalUnread,
+    totalThreads: allThreads.filter(t => t.apartment && userApartmentIds.has(t.apartment.id)).length,
   };
 }
 
@@ -318,7 +325,7 @@ export async function getDashboard(user, { from, to } = {}) {
 
   const inboxData = await getInbox(user, { limit: 5 }).catch(err => {
     console.warn('Inbox fetch failed:', err.message);
-    return { threads: [] };
+    return { threads: [], totalUnread: 0, totalThreads: 0 };
   });
 
   return {
@@ -335,5 +342,7 @@ export async function getDashboard(user, { from, to } = {}) {
     properties,
     bookings: allBookings,
     inbox: inboxData.threads,
+    totalUnread: inboxData.totalUnread,    
+    totalThreads: inboxData.totalThreads,
   };
 }
