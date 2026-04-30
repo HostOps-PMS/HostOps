@@ -174,6 +174,72 @@ export async function getRates(user, { apartmentIds, start, end }) {
   );
 }
 
+export async function getInbox(user, { limit = 5, daysBack = 60 } = {}) {
+  const apiKey = getApiKeyForUser(user);
+
+  // Get apartments owned by user (for filtering)
+  const apartmentsData = await smoobuRequest('/apartments', apiKey);
+  const userApartmentIds = new Set(
+    (apartmentsData.apartments || [])
+      .filter(a => belongsToUser(a.name, user))
+      .map(a => a.id)
+  );
+
+  // Get recent bookings (last X days)
+  const today = new Date();
+  const from = new Date(today);
+  from.setDate(from.getDate() - daysBack);
+  const fmt = d => d.toISOString().slice(0, 10);
+
+  const { bookings } = await smoobuRequestAllPages(
+    `/reservations?from=${fmt(from)}&to=${fmt(today)}`,
+    apiKey,
+    { showCancellation: false }
+  );
+
+  // Filter user's bookings, sort by most recent
+  const recent = bookings
+    .filter(b => userApartmentIds.has(b.apartment?.id))
+    .filter(b => !b['is-blocked-booking'] && b.type !== 'cancellation')
+    .sort((a, b) => new Date(b['created-at']) - new Date(a['created-at']))
+    .slice(0, limit * 2); // get extra para may buffer kung wala silang messages
+
+  // Fetch messages for each reservation in parallel
+  const threads = await Promise.allSettled(
+    recent.map(async (b) => {
+      try {
+        const msgData = await smoobuRequest(`/reservations/${b.id}/messages`, apiKey);
+        const messages = msgData.messages || msgData || [];
+        const msgArr = Array.isArray(messages) ? messages : [];
+        if (msgArr.length === 0) return null;
+
+        const latest = msgArr[msgArr.length - 1];
+        return {
+          reservationId: b.id,
+          guestName: b['guest-name'],
+          property: displayName(b.apartment?.name, user),
+          channel: b.channel?.name || 'Direct',
+          latestMessage: {
+            body: latest.message || latest.messageBody || latest.body || '',
+            createdAt: latest['created-at'] || latest.createdAt || latest.date || null,
+            fromGuest: latest.type === 'incoming' || latest.from === 'guest' || latest.direction === 'incoming',
+          },
+          totalMessages: msgArr.length,
+        };
+      } catch (e) {
+        return null;
+      }
+    })
+  );
+
+  return {
+    threads: threads
+      .filter(r => r.status === 'fulfilled' && r.value)
+      .map(r => r.value)
+      .slice(0, limit),
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────
 // AGGREGATED DASHBOARD
 // Default: Year-to-date (Jan 1 to today)
@@ -245,6 +311,11 @@ export async function getDashboard(user, { from, to } = {}) {
   const propsCount = properties.length || 1;
   const totalAvailableNights = daysInRange * propsCount;
   const occupancyPct = Math.min(100, Math.round((totalNights / totalAvailableNights) * 100));
+
+  const inboxData = await getInbox(user, { limit: 5 }).catch(err => {
+    console.warn('Inbox fetch failed:', err.message);
+    return { threads: [] };
+  });
 
   return {
     period: { from: fromDate, to: toDate, days: daysInRange },
