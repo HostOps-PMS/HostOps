@@ -53,12 +53,19 @@ export async function sendVerificationEmail(to, firstName, link) {
     </p>
   `, 'Verify your email');
 
-  return getResend().emails.send({
+  const result = await getResend().emails.send({
     from: FROM,
     to,
     subject: 'Verify your HostPilot account',
     html,
   });
+
+  if (result.error) {
+    throw new Error(result.error.message || 'Resend failed to send verification email');
+  }
+
+  console.log('Verification email sent:', result.data?.id);
+  return result;
 }
 
 // ── Send password reset link ───────────────────────────────────
@@ -78,10 +85,17 @@ export async function sendResetEmail(to, firstName, link) {
     </p>
   `, 'Reset your password');
 
-  return getResend().emails.send({
+  const result = await getResend().emails.send({
     from: FROM,
     to,
     subject: 'Reset your HostPilot password',
     html,
   });
+
+  if (result.error) {
+    throw new Error(result.error.message || 'Resend failed to send verification email');
+  }
+
+  console.log('Verification email sent:', result.data?.id);
+  return result;
 }
