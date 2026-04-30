@@ -38,19 +38,18 @@ router.post('/register', async (req, res, next) => {
       return res.status(409).json({ error: 'Email already registered' });
     }
 
-    const rawToken = randomToken();
-    const hashed = hashToken(rawToken);
+    //const rawToken = randomToken();
+    //const hashed = hashToken(rawToken);
 
     const user = await User.create({
       email: data.email.toLowerCase(),
       password: data.password,
       firstName: data.firstName,
       lastName: data.lastName || '',
-      verifyToken: hashed,
-      verifyTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      isVerified: true,
     });
 
-    const link = `${process.env.FRONTEND_URL}/verify?token=${rawToken}&email=${encodeURIComponent(user.email)}`;
+    /*const link = `${process.env.FRONTEND_URL}/verify?token=${rawToken}&email=${encodeURIComponent(user.email)}`;
     try {
       await sendVerificationEmail(user.email, user.firstName, link);
     } catch (e) {
@@ -59,7 +58,7 @@ router.post('/register', async (req, res, next) => {
         error: 'Account created but verification email failed to send. Check email service config.',
         details: e.message
       });
-    }
+    }*/
 
     res.status(201).json({
       message: 'Account created. Please check your email to verify.',
@@ -85,8 +84,8 @@ router.post('/verify', async (req, res, next) => {
     const hashed = hashToken(token);
     const user = await User.findOne({
       email: email.toLowerCase(),
-      verifyToken: hashed,
-      verifyTokenExpiry: { $gt: new Date() },
+      //verifyToken: hashed,
+      //verifyTokenExpiry: { $gt: new Date() },
     }).select('+verifyToken +verifyTokenExpiry');
 
     if (!user) {
@@ -228,7 +227,7 @@ router.post('/forgot-password', async (req, res, next) => {
 
     const user = await User.findOne({ email: email.toLowerCase() });
     if (user) {
-      const rawToken = randomToken();
+    const rawToken = randomToken();
       user.resetToken = hashToken(rawToken);
       user.resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
       await user.save();
