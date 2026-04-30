@@ -55,6 +55,10 @@ router.post('/register', async (req, res, next) => {
       await sendVerificationEmail(user.email, user.firstName, link);
     } catch (e) {
       console.error('Email send failed:', e);
+      return res.status(500).json({
+        error: 'Account created but verification email failed to send. Check email service config.',
+        details: e.message
+      });
     }
 
     res.status(201).json({
