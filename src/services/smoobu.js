@@ -174,6 +174,10 @@ export async function getRates(user, { apartmentIds, start, end }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────
+// MESSAGING — Get inbox (latest messages from recent reservations)
+// ─────────────────────────────────────────────────────────────────
+
 export async function getInbox(user, { limit = 5, daysBack = 60 } = {}) {
   const apiKey = getApiKeyForUser(user);
 
@@ -330,5 +334,6 @@ export async function getDashboard(user, { from, to } = {}) {
     byChannel,
     properties,
     bookings: allBookings,
+    inbox: inboxData.threads,
   };
 }
