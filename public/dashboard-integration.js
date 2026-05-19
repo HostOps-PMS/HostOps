@@ -290,10 +290,10 @@
     cols[2].querySelector('.donut').style.background = buildConic('nights', totalNt);
   }
 
-  function setBanner(text, color) {
+  function setBanner(text, color, isHtml = false) {
     const bar = document.querySelector('.db-demo-bar');
     if (!bar) return;
-    bar.innerHTML = text;
+    bar.innerHTML = isHtml ? text : escapeHtml(text);
     if (color === 'live')    { bar.style.background = '#d4f0e4'; bar.style.color = '#1e8760'; }
     if (color === 'loading') { bar.style.background = '#fff8e1'; bar.style.color = '#7a6a00'; }
     if (color === 'error')   { bar.style.background = '#fff0ee'; bar.style.color = '#c13515'; }
