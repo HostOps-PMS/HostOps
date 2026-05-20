@@ -18,6 +18,7 @@ const registerSchema = z.object({
   password: z.string().min(8).max(128),
   firstName: z.string().min(1).max(50),
   lastName: z.string().max(50).optional().default(''),
+  propertyTagPrefix: z.string().optional().default(''),
 });
 
 const loginSchema = z.object({
@@ -46,6 +47,7 @@ router.post('/register', async (req, res, next) => {
       password: data.password,
       firstName: data.firstName,
       lastName: data.lastName || '',
+      propertyTagPrefix: data.propertyTagPrefix || '',
       isVerified: true,
     });
 
