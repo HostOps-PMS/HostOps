@@ -1,0 +1,487 @@
+<!--
+  ═══════════════════════════════════════════════════════════════
+  HostPilot Login/Register
+  ═══════════════════════════════════════════════════════════════
+  Paano gamitin sa GHL:
+  1. Sa GHL Funnel Builder, gumawa ng new page (e.g., /login)
+  2. Magdagdag ng "Custom HTML" element
+  3. I-paste yung buong content nito (kasama ang <script> sa baba)
+  4. I-update yung API_BASE sa Render URL mo
+  ═══════════════════════════════════════════════════════════════
+-->
+  
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://hostpilot-smoobu.onrender.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="strict-origin-when-cross-origin"> -->
+    <title>HostOps - Login</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        .lp-wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #eaf8f1 0%, #d4f0e4 100%);
+            padding: 20px;
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+        }
+
+        .lp-card {
+            background: #fff;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(4, 14, 9, 0.08);
+        }
+
+        .lp-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 32px;
+            justify-content: center;
+        }
+
+        .lp-logo-mark {
+            width: 42px;
+            height: 42px;
+            background: #26a676;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 800;
+            font-family: 'Sora', sans-serif;
+            font-size: 20px;
+            box-shadow: 0 6px 16px rgba(38, 166, 118, 0.3);
+        }
+
+        .lp-brand {
+            font-family: 'Sora', sans-serif;
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: #0c1c14;
+            letter-spacing: -0.5px;
+        }
+
+        .lp-tabs {
+            display: flex;
+            background: #f0f5f2;
+            border-radius: 100px;
+            padding: 4px;
+            margin-bottom: 28px;
+        }
+
+        .lp-tab {
+            flex: 1;
+            padding: 11px;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #6a8b7c;
+            cursor: pointer;
+            border-radius: 100px;
+            transition: all 0.2s;
+        }
+
+        .lp-tab.active {
+            background: #fff;
+            color: #0c1c14;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .lp-h1 {
+            font-family: 'Sora', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: #0c1c14;
+            margin: 0 0 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .lp-sub {
+            color: #6a8b7c;
+            font-size: 0.92rem;
+            margin: 0 0 24px;
+            line-height: 1.5;
+        }
+
+        .lp-field {
+            margin-bottom: 16px;
+        }
+
+        .lp-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #2a4e3c;
+            margin-bottom: 6px;
+            letter-spacing: 0.2px;
+        }
+
+        .lp-input {
+            width: 100%;
+            padding: 13px 16px;
+            border: 1.5px solid #e3ede8;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: #0c1c14;
+            background: #f8fbf9;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .lp-input:focus {
+            border-color: #26a676;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(38, 166, 118, 0.1);
+        }
+
+        .lp-btn {
+            width: 100%;
+            padding: 14px;
+            background: #26a676;
+            color: #fff;
+            border: none;
+            border-radius: 100px;
+            font-family: inherit;
+            font-size: 0.98rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 6px 18px rgba(38, 166, 118, 0.3);
+        }
+
+        .lp-btn:hover:not(:disabled) {
+            background: #1e8760;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px rgba(38, 166, 118, 0.4);
+        }
+
+        .lp-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .lp-link {
+            display: block;
+            text-align: center;
+            margin-top: 18px;
+            font-size: 0.85rem;
+            color: #26a676;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .lp-link:hover {
+            text-decoration: underline;
+        }
+
+        .lp-msg {
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .lp-msg.error {
+            background: #fff0ee;
+            color: #c13515;
+            border: 1px solid #ffd5ce;
+        }
+
+        .lp-msg.success {
+            background: #d4f0e4;
+            color: #1e8760;
+            border: 1px solid #b7e4cf;
+        }
+
+        .lp-msg.show {
+            display: block;
+        }
+
+        .lp-row {
+            display: none;
+        }
+
+        .lp-row.active {
+            display: block;
+        }
+
+        .lp-back-home {
+            display: block;
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.82rem;
+            color: #9ab8a9;
+            text-decoration: none;
+        }
+
+        .lp-back-home:hover {
+            color: #26a676;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="lp-wrap">
+        <div class="lp-card">
+            <div class="lp-logo">
+                <div class="lp-logo-mark">H</div>
+                <div class="lp-brand">HostPilot</div>
+            </div>
+
+            <div class="lp-tabs" id="lp-tabs">
+                <button class="lp-tab active" data-tab="login">Sign In</button>
+                <button class="lp-tab" data-tab="register">Create Account</button>
+            </div>
+
+            <div class="lp-msg" id="lp-msg"></div>
+
+            <!-- LOGIN -->
+            <div class="lp-row active" id="lp-login">
+                <h1 class="lp-h1">Welcome back</h1>
+                <p class="lp-sub">Sign in to view your live property dashboard.</p>
+                <form id="lp-login-form" autocomplete="on">
+                    <div class="lp-field">
+                        <label class="lp-label">Email</label>
+                        <input class="lp-input" type="email" name="email" required autocomplete="email">
+                    </div>
+                    <div class="lp-field">
+                        <label class="lp-label">Password</label>
+                        <input class="lp-input" type="password" name="password" required
+                            autocomplete="current-password">
+                    </div>
+                    <button class="lp-btn" type="submit">Sign In</button>
+                    <button type="button" class="lp-link" data-go="forgot">Forgot password?</button>
+                </form>
+            </div>
+
+            <!-- REGISTER -->
+            <div class="lp-row" id="lp-register">
+                <h1 class="lp-h1">Create your account</h1>
+                <p class="lp-sub">We'll email you a verification link.</p>
+                <form id="lp-register-form">
+                    <div class="lp-field">
+                        <label class="lp-label">First name</label>
+                        <input class="lp-input" type="text" name="firstName" required>
+                    </div>
+                    <div class="lp-field">
+                        <label class="lp-label">Last name</label>
+                        <input class="lp-input" type="text" name="lastName" required>
+                    </div>
+                    <div class="lp-field">
+                        <label class="lp-label">Email</label>
+                        <input class="lp-input" type="email" name="email" required autocomplete="email">
+                    </div>
+                    <div class="lp-field">
+                        <label class="lp-label">Password (min 8 characters)</label>
+                        <input class="lp-input" type="password" name="password" required minlength="8"
+                            autocomplete="new-password">
+                    </div>
+                    <button class="lp-btn" type="submit">Create Account</button>
+                </form>
+            </div>
+
+            <!-- FORGOT -->
+            <div class="lp-row" id="lp-forgot">
+                <h1 class="lp-h1">Reset your password</h1>
+                <p class="lp-sub">We'll email you a reset link.</p>
+                <form id="lp-forgot-form">
+                    <div class="lp-field">
+                        <label class="lp-label">Email</label>
+                        <input class="lp-input" type="email" name="email" required autocomplete="email">
+                    </div>
+                    <button class="lp-btn" type="submit">Send Reset Link</button>
+                    <button type="button" class="lp-link" data-go="login">← Back to sign in</button>
+                </form>
+            </div>
+
+            <a href="https://hostops.online/" class="lp-back-home">
+                ← Back to homepage
+            </a>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            // ═══════════════════════════════════════════════════════════════
+            // ⚠️ CONFIG — palitan ito ng EXACT Render URL mo
+            // ═══════════════════════════════════════════════════════════════
+            // changed
+            var API_BASE = 'https://hostpilot-smoobu.onrender.com'; // TODO: Change this to HostOps backend URL when ready
+
+            // Saan magri-redirect after successful login (yung dashboard page/funnel mo)
+            var DASHBOARD_URL = 'https://hostops.online/dashboard';
+            // ═══════════════════════════════════════════════════════════════
+
+            function $(s) { return document.querySelector(s); }
+            function $$(s) { return document.querySelectorAll(s); }
+
+            function showMsg(text, type) {
+                var el = $('#lp-msg');
+                el.textContent = text;
+                el.className = 'lp-msg ' + (type || 'error') + ' show';
+                if (type === 'success') {
+                    setTimeout(function () { el.classList.remove('show'); }, 8000);
+                }
+            }
+
+            function hideMsg() {
+                $('#lp-msg').classList.remove('show');
+            }
+
+            function showRow(id) {
+                $$('.lp-row').forEach(function (r) { r.classList.remove('active'); });
+                $('#lp-' + id).classList.add('active');
+                hideMsg();
+
+                // Update tab states
+                $$('.lp-tab').forEach(function (t) { t.classList.remove('active'); });
+                if (id === 'login' || id === 'register') {
+                    var tab = document.querySelector('.lp-tab[data-tab="' + id + '"]');
+                    if (tab) tab.classList.add('active');
+                }
+            }
+
+            // Tab clicks
+            $$('.lp-tab').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    showRow(btn.dataset.tab);
+                });
+            });
+
+            // "data-go" link clicks
+            document.addEventListener('click', function (e) {
+                var link = e.target.closest('[data-go]');
+                if (link) { e.preventDefault(); showRow(link.dataset.go); }
+            });
+
+            // ── LOGIN ──
+            $('#lp-login-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                var fd = new FormData(e.target);
+                var btn = e.target.querySelector('button[type=submit]');
+                btn.disabled = true; btn.textContent = 'Signing in...';
+                hideMsg();
+
+                try {
+                    var res = await fetch(API_BASE + '/auth/login', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: fd.get('email'),
+                            password: fd.get('password'),
+                        }),
+                    });
+                    var data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Login failed');
+
+                    sessionStorage.setItem('hp_access_token', data.accessToken);
+                    sessionStorage.setItem('hp_user', JSON.stringify(data.user));
+
+                    showMsg('Welcome back, ' + data.user.firstName + '! Redirecting...', 'success');
+                    setTimeout(function () { window.location.href = DASHBOARD_URL; }, 800);
+                } catch (err) {
+                    showMsg(err.message);
+                    btn.disabled = false; btn.textContent = 'Sign In';
+                }
+            });
+
+            // ── REGISTER ──
+            $('#lp-register-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                var fd = new FormData(e.target);
+                var btn = e.target.querySelector('button[type=submit]');
+                btn.disabled = true; btn.textContent = 'Creating account...';
+                hideMsg();
+
+                try {
+                    var res = await fetch(API_BASE + '/auth/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: fd.get('email'),
+                            password: fd.get('password'),
+                            firstName: fd.get('firstName'),
+                            lastName: fd.get('lastName'),
+                        }),
+                    });
+                    var data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Registration failed');
+
+                    showMsg('Account created! Check your email for a verification link before signing in.', 'success');
+                    e.target.reset();
+                    showRow('login');
+                } catch (err) {
+                    showMsg(err.message);
+                } finally {
+                    btn.disabled = false; btn.textContent = 'Create Account';
+                }
+            });
+
+            // ── FORGOT PASSWORD ──
+            $('#lp-forgot-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                var fd = new FormData(e.target);
+                var btn = e.target.querySelector('button[type=submit]');
+                btn.disabled = true; btn.textContent = 'Sending...';
+
+                try {
+                    var res = await fetch(API_BASE + '/auth/forgot-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: fd.get('email') }),
+                    });
+                    var data = await res.json();
+                    showMsg(data.message || 'Check your email', 'success');
+                } catch (err) {
+                    showMsg('Something went wrong. Please try again.');
+                } finally {
+                    btn.disabled = false; btn.textContent = 'Send Reset Link';
+                }
+            });
+
+            // Auto-redirect kung naka-login na
+            if (sessionStorage.getItem('hp_access_token')) {
+                fetch(API_BASE + '/auth/me', {
+                    headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('hp_access_token') },
+                }).then(function (r) {
+                    if (r.ok) window.location.href = DASHBOARD_URL;
+                }).catch(function () { });
+            }
+        })();
+    </script>
+</body>
+
+</html>
