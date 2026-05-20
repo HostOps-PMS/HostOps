@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ['client', 'admin'],
-    default: 'admin',
+    default: 'client',
   },
 
   // ── MULTI-TENANT READY ────────────────────────────────────────
