@@ -1,0 +1,3358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HostOps — Done-For-You Rental Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Sora:wght@700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ── HERO ── */
+        .hp-wrapper {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'DM Sans', sans-serif;
+            background-color: #eaf8f1;
+            overflow: hidden;
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+        }
+
+        .hp-bg-grid {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background-image: linear-gradient(rgba(38, 166, 118, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(38, 166, 118, .08) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .hp-glow {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background: radial-gradient(circle at 50% 50%, rgba(234, 248, 241, .95) 25%, rgba(234, 248, 241, .6) 65%, transparent 100%);
+        }
+
+        .fl-el {
+            position: absolute;
+            z-index: 2;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            animation: floatAnim linear infinite;
+            box-shadow: 0 8px 30px rgba(10, 31, 20, .08);
+            border: 1px solid rgba(38, 166, 118, .15);
+        }
+
+        @keyframes floatAnim {
+
+            0%,
+            100% {
+                transform: var(--r) translateY(0);
+            }
+
+            50% {
+                transform: var(--r) translateY(var(--l));
+            }
+        }
+
+        .fl-sz-lg {
+            padding: 14px 22px;
+            gap: 14px;
+        }
+
+        .fl-sz-md {
+            padding: 12px 18px;
+            gap: 12px;
+        }
+
+        .fl-sz-sm {
+            padding: 8px 14px;
+            gap: 10px;
+        }
+
+        .sh-pill {
+            border-radius: 50px;
+        }
+
+        .sh-box {
+            border-radius: 12px;
+        }
+
+        .sh-chat {
+            border-radius: 20px 20px 4px 20px;
+        }
+
+        .sh-folder {
+            border-radius: 8px 20px 8px 8px;
+        }
+
+        .fl-ic {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .fl-sz-lg .fl-ic {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+        }
+
+        .fl-sz-md .fl-ic {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .fl-sz-sm .fl-ic {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+
+        .fl-title {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            color: #071911;
+            line-height: 1.1;
+        }
+
+        .fl-sub {
+            color: #6a8b7c;
+            font-weight: 400;
+            line-height: 1.3;
+        }
+
+        .fl-note {
+            background: #fef7c2;
+            border-radius: 4px 4px 16px 4px;
+            padding: 24px 20px;
+            width: 220px;
+            white-space: normal;
+            color: #333;
+            line-height: 1.6;
+            border: 1px solid rgba(0, 0, 0, .05);
+            box-shadow: 4px 10px 25px rgba(10, 31, 20, .08);
+            display: block;
+        }
+
+        .fl-note-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .fl-note-text {
+            font-family: 'DM Sans', sans-serif;
+            font-size: .85rem;
+            display: block;
+        }
+
+        .app-airbnb {
+            top: 6%;
+            left: 4%;
+            --r: rotate(-5deg);
+            --l: -12px;
+            animation-duration: 6.5s;
+        }
+
+        .app-vrbo {
+            top: 10%;
+            right: 5%;
+            --r: rotate(6deg);
+            --l: -10px;
+            animation-duration: 7s;
+        }
+
+        .app-note {
+            top: 22%;
+            left: 10%;
+            --r: rotate(-4deg);
+            --l: -15px;
+            animation-duration: 8.5s;
+        }
+
+        .app-whatsapp {
+            top: 45%;
+            right: 4%;
+            --r: rotate(7deg);
+            --l: -14px;
+            animation-duration: 6.8s;
+        }
+
+        .app-booking {
+            bottom: 35%;
+            left: 3%;
+            --r: rotate(-6deg);
+            --l: -10px;
+            animation-duration: 7.5s;
+        }
+
+        .app-unified {
+            bottom: 25%;
+            right: 8%;
+            --r: rotate(4deg);
+            --l: -10px;
+            animation-duration: 8s;
+        }
+
+        .app-agoda {
+            bottom: 6%;
+            left: 5%;
+            --r: rotate(-7deg);
+            --l: -11px;
+            animation-duration: 7.3s;
+        }
+
+        .app-facebook {
+            bottom: 5%;
+            right: 6%;
+            --r: rotate(5deg);
+            --l: -15px;
+            animation-duration: 6s;
+        }
+
+        .hp-center-content {
+            position: relative;
+            z-index: 5;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 60px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hp-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #d4f0e4;
+            border: 1px solid #b7e4cf;
+            border-radius: 100px;
+            padding: 8px 20px;
+            font-size: .8rem;
+            font-weight: 700;
+            color: #2e8b66;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+        }
+
+        .hp-badge .dot {
+            width: 6px;
+            height: 6px;
+            background: #2e8b66;
+            border-radius: 50%;
+        }
+
+        .hp-h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(3.2rem, 6vw, 5rem);
+            font-weight: 800;
+            line-height: 1.05;
+            color: #0c1c14;
+            letter-spacing: -2px;
+            margin: 0 0 24px;
+        }
+
+        .hp-h1 span {
+            color: #26a676;
+            font-style: italic;
+        }
+
+        .hp-desc {
+            font-size: 1.15rem;
+            color: #5c7b6d;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            font-weight: 400;
+        }
+
+        .hp-bg-grid,
+        .hp-glow {
+            pointer-events: none;
+        }
+
+        .hp-btns {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 99;
+        }
+
+        .hp-btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 36px;
+            background: #26a676;
+            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 100px;
+            text-decoration: none;
+            box-shadow: 0 8px 24px rgba(38, 166, 118, .4);
+            transition: all .2s;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .hp-btn-primary:hover {
+            background: #1e8760;
+            transform: translateY(-2px);
+        }
+
+        .hp-btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 36px;
+            background: #fff;
+            color: #0c1c14;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border: 1.5px solid #d1e8dd;
+            border-radius: 100px;
+            text-decoration: none;
+            transition: all .2s;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .hp-btn-secondary:hover {
+            border-color: #a3d2bc;
+            background: #f7fcf9;
+        }
+
+        .hp-trust {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .hp-avatars {
+            display: flex;
+        }
+
+        .hp-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 2px solid #eaf8f1;
+            margin-left: -10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .hp-avatar:first-child {
+            margin-left: 0;
+            background: #26a676;
+            color: #fff;
+        }
+
+        .hp-avatar:nth-child(2) {
+            background: #56c299;
+            color: #0c1c14;
+        }
+
+        .hp-avatar:nth-child(3) {
+            background: #a2e2c8;
+            color: #0c1c14;
+        }
+
+        .hp-avatar:nth-child(4) {
+            background: #d4f0e4;
+            color: #2e8b66;
+            font-size: 14px;
+        }
+
+        .hp-trust-text {
+            font-size: .9rem;
+            color: #829f92;
+        }
+
+        .hp-trust-text strong {
+            color: #0c1c14;
+            font-weight: 700;
+        }
+
+        /* ── MODAL ── */
+        .hc-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            background: rgba(4, 14, 9, .6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .3s ease, visibility .3s ease;
+        }
+
+        .hc-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .hc-card {
+            width: 100%;
+            max-width: 780px;
+            background: #fff;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 40px 120px rgba(4, 14, 9, .25), 0 0 0 1px rgba(4, 14, 9, .06);
+            transform: translateY(28px) scale(.96);
+            transition: transform .45s cubic-bezier(.34, 1.56, .64, 1);
+            display: flex;
+            min-height: 480px;
+        }
+
+        .hc-overlay.open .hc-card {
+            transform: translateY(0) scale(1);
+        }
+
+        .hc-panel-left {
+            width: 240px;
+            flex-shrink: 0;
+            background: linear-gradient(160deg, #0d3d28 0%, #0a2d1e 100%);
+            padding: 36px 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hc-panel-left::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(38, 166, 118, .12);
+        }
+
+        .hc-panel-left::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            left: -40px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(38, 166, 118, .08);
+        }
+
+        .hc-panel-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hc-panel-logomark {
+            width: 34px;
+            height: 34px;
+            background: rgba(38, 166, 118, .2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(38, 166, 118, .3);
+        }
+
+        .hc-panel-brand {
+            font-family: 'Sora', sans-serif;
+            font-size: .95rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .hc-panel-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            position: relative;
+            z-index: 1;
+            margin-top: 40px;
+        }
+
+        .hc-panel-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px 0;
+            position: relative;
+        }
+
+        .hc-panel-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 42px;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, .1);
+        }
+
+        .hc-ps-dot {
+            width: 29px;
+            height: 29px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: .75rem;
+            font-weight: 700;
+            transition: all .3s;
+        }
+
+        .hc-ps-dot.done {
+            background: #26a676;
+            color: #fff;
+        }
+
+        .hc-ps-dot.active {
+            background: #fff;
+            color: #0d3d28;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, .15);
+        }
+
+        .hc-ps-dot.pending {
+            background: rgba(255, 255, 255, .08);
+            color: rgba(255, 255, 255, .3);
+            border: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        .hc-ps-info {
+            padding-top: 4px;
+        }
+
+        .hc-ps-label {
+            font-family: 'Sora', sans-serif;
+            font-size: .78rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .35);
+            letter-spacing: .3px;
+            text-transform: uppercase;
+            transition: color .3s;
+        }
+
+        .hc-ps-label.active {
+            color: #fff;
+        }
+
+        .hc-ps-label.done {
+            color: #4ecba0;
+        }
+
+        .hc-ps-sub {
+            font-size: .72rem;
+            color: rgba(255, 255, 255, .2);
+            margin-top: 2px;
+            transition: color .3s;
+        }
+
+        .hc-ps-sub.active {
+            color: rgba(255, 255, 255, .5);
+        }
+
+        .hc-panel-footer {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hc-panel-guarantee {
+            background: rgba(38, 166, 118, .12);
+            border: 1px solid rgba(38, 166, 118, .2);
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .hc-pg-title {
+            font-size: .72rem;
+            font-weight: 700;
+            color: #4ecba0;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .hc-pg-text {
+            font-size: .72rem;
+            color: rgba(255, 255, 255, .45);
+            line-height: 1.5;
+        }
+
+        .hc-panel-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hc-head {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 20px 24px 0;
+        }
+
+        .hc-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #f0f5f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #6a8b7c;
+            transition: all .2s;
+        }
+
+        .hc-close:hover {
+            background: #e2ede8;
+            color: #0c1c14;
+            transform: rotate(90deg);
+        }
+
+        .hc-body {
+            padding: 28px 36px 16px;
+            flex: 1;
+        }
+
+        .hc-step-eyebrow {
+            font-size: .72rem;
+            font-weight: 700;
+            color: #26a676;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .hc-q {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0c1c14;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+
+        .hc-hint {
+            font-size: .85rem;
+            color: #9ab8a9;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        .hc-field {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e8f0ec;
+            border-radius: 16px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            color: #0c1c14;
+            background: #f8fbf9;
+            outline: none;
+            transition: all .2s;
+        }
+
+        .hc-field:focus {
+            border-color: #26a676;
+            background: #fff;
+            box-shadow: 0 0 0 5px rgba(38, 166, 118, .1);
+        }
+
+        .hc-field::placeholder {
+            color: #c5d8cd;
+        }
+
+        .hc-field.shake {
+            animation: shake .35s ease;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-7px);
+            }
+
+            75% {
+                transform: translateX(7px);
+            }
+        }
+
+        .hc-opts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .hc-opt {
+            padding: 18px 12px;
+            border-radius: 16px;
+            border: 2px solid #e8f0ec;
+            background: #f8fbf9;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .92rem;
+            font-weight: 600;
+            color: #2a4e3c;
+            cursor: pointer;
+            transition: all .2s;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .hc-opt:hover {
+            border-color: #26a676;
+            background: #eaf8f1;
+            transform: translateY(-2px);
+        }
+
+        .hc-opt.sel {
+            border-color: #26a676;
+            background: #26a676;
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(38, 166, 118, .3);
+            transform: translateY(-2px);
+        }
+
+        .hc-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 36px 32px;
+        }
+
+        .hc-btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .88rem;
+            color: #9ab8a9;
+            cursor: pointer;
+            padding: 0;
+            transition: color .15s;
+        }
+
+        .hc-btn-back:hover {
+            color: #3a5c4a;
+        }
+
+        .hc-btn-next {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 30px;
+            background: #26a676;
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .95rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(38, 166, 118, .4);
+            transition: all .2s;
+        }
+
+        .hc-btn-next:hover:not(:disabled) {
+            background: #1e9668;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(38, 166, 118, .45);
+        }
+
+        .hc-btn-next:disabled {
+            opacity: .3;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        @media(max-width:620px) {
+            .hc-panel-left {
+                display: none;
+            }
+
+            .hc-card {
+                max-width: 420px;
+            }
+
+            .hc-body {
+                padding: 20px 24px 12px;
+            }
+
+            .hc-foot {
+                padding: 16px 24px 28px;
+            }
+        }
+
+        @media(max-width:768px) {
+            .fl-el {
+                display: none;
+            }
+
+            .hp-center-content {
+                padding: 40px 20px;
+            }
+
+            .hp-h1 {
+                font-size: 2.8rem;
+                letter-spacing: -1px;
+                margin-bottom: 16px;
+            }
+
+            .hp-desc {
+                font-size: 1rem;
+                margin-bottom: 30px;
+            }
+
+            .hp-btns {
+                flex-direction: column;
+                width: 100%;
+                gap: 12px;
+            }
+
+            .hp-btn-primary,
+            .hp-btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .hp-trust {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .hc-card {
+                border-radius: 22px;
+                max-height: 88vh;
+            }
+        }
+
+        #hp-demo-page {
+            display: none;
+            font-family: 'DM Sans', sans-serif;
+            background: #f4f7f5;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 99900;
+            overflow-y: auto;
+            margin: 0;
+            padding: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #hp-demo-page.show-dashboard {
+            display: block;
+        }
+
+        /* ── SETUP MODAL ── */
+        #ss-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            background: rgba(4, 14, 9, .6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .3s ease, visibility .3s ease;
+        }
+
+        #ss-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .ss-card {
+            width: 100%;
+            max-width: 560px;
+            background: #f8fbf9;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 40px 120px rgba(4, 14, 9, .25);
+            transform: translateY(24px) scale(.97);
+            transition: transform .4s cubic-bezier(.34, 1.56, .64, 1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #ss-overlay.open .ss-card {
+            transform: translateY(0) scale(1);
+        }
+
+        .ss-head {
+            display: flex;
+            justify-content: flex-end;
+            padding: 16px 20px 0;
+        }
+
+        .ss-close {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: #e8f0ec;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #6a8b7c;
+            transition: all .2s;
+        }
+
+        .ss-close:hover {
+            background: #d1e8dd;
+            transform: rotate(90deg);
+        }
+
+        .ss-body {
+            padding: 0 28px 8px;
+        }
+
+        .ss-bar {
+            margin-bottom: 20px;
+        }
+
+        .ss-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #0c1c14;
+            margin-bottom: 6px;
+        }
+
+        .ss-sub {
+            font-size: .88rem;
+            color: #6a8b7c;
+            margin-bottom: 18px;
+        }
+
+        .ss-label {
+            display: block;
+            font-size: .78rem;
+            font-weight: 700;
+            color: #2a4e3c;
+            margin-bottom: 6px;
+        }
+
+        .ss-prop-btn {
+            padding: 14px 10px;
+            border-radius: 12px;
+            border: 2px solid #e3ede8;
+            background: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .88rem;
+            font-weight: 600;
+            color: #2a4e3c;
+            cursor: pointer;
+            transition: all .2s;
+            text-align: center;
+        }
+
+        .ss-prop-btn:hover {
+            border-color: #26a676;
+            background: #eaf8f1;
+        }
+
+        .ss-prop-btn.sel {
+            border-color: #26a676;
+            background: #26a676;
+            color: #fff;
+        }
+
+        .ss-plat-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 14px;
+            border-radius: 12px;
+            border: 1.5px solid #e3ede8;
+            background: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .82rem;
+            font-weight: 600;
+            color: #2a4e3c;
+            cursor: pointer;
+            transition: all .2s;
+            text-align: left;
+        }
+
+        .ss-plat-btn:hover {
+            border-color: #26a676;
+            background: #eaf8f1;
+        }
+
+        .ss-plat-btn.sel {
+            border-color: #26a676;
+            background: #eaf8f1;
+        }
+
+        .ss-chk {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            border: 1.5px solid #d1e8dd;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: transparent;
+            transition: all .2s;
+        }
+
+        .ss-chk.on {
+            background: #26a676;
+            border-color: #26a676;
+            color: #fff;
+        }
+
+        .ss-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 28px 28px;
+        }
+
+        .ss-btn-next {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 13px 28px;
+            background: #26a676;
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .92rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(38, 166, 118, .35);
+            transition: all .2s;
+        }
+
+        .ss-btn-next:hover:not(:disabled) {
+            background: #1e9668;
+            transform: translateY(-2px);
+        }
+
+        .ss-btn-next:disabled {
+            opacity: .35;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ── WALKTHROUGH SCREEN ── */
+        #ss-walkthrough {
+            position: fixed;
+            inset: 0;
+            z-index: 9999999;
+            background: rgba(4, 14, 9, .65);
+            backdrop-filter: blur(14px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .3s;
+        }
+
+        #ss-walkthrough.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .ss-wt-card {
+            background: #f8fbf9;
+            border-radius: 24px;
+            padding: 48px 36px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 40px 100px rgba(4, 14, 9, .2);
+            transform: translateY(20px);
+            transition: transform .4s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        #ss-walkthrough.open .ss-wt-card {
+            transform: translateY(0);
+        }
+
+        .ss-wt-icon {
+            width: 64px;
+            height: 64px;
+            background: #d4f0e4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .ss-wt-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0c1c14;
+            margin-bottom: 10px;
+        }
+
+        .ss-wt-sub {
+            font-size: .88rem;
+            color: #6a8b7c;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .ss-wt-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 30px;
+            background: #26a676;
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .92rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(38, 166, 118, .35);
+            margin-bottom: 16px;
+        }
+
+        .ss-wt-back-link {
+            font-size: .8rem;
+            color: #9ab8a9;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .ss-wt-back-link:hover {
+            color: #26a676;
+        }
+
+        /* ── WALKTHROUGH CALENDAR UI (SIDE-BY-SIDE DESIGN) ── */
+        .ss-wt-card {
+            transition: max-width 0.4s cubic-bezier(.22, 1.6, .36, 1), padding 0.4s ease;
+        }
+
+        .ss-wt-card.wide {
+            max-width: 740px;
+            padding: 0;
+            text-align: left;
+            overflow: hidden;
+        }
+
+        .wt-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 24px 32px;
+            border-bottom: 1px solid #f0f5f2;
+        }
+
+        .wt-header-ic {
+            width: 40px;
+            height: 40px;
+            border: 1.5px solid #e3ede8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2a4e3c;
+        }
+
+        .wt-header-txt h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.05rem;
+            color: #0c1c14;
+            margin-bottom: 2px;
+            font-weight: 800;
+        }
+
+        .wt-header-txt p {
+            font-size: .85rem;
+            color: #6a8b7c;
+            margin: 0;
+        }
+
+        .wt-body {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            padding: 24px 32px;
+            gap: 40px;
+        }
+
+        /* Left Side: Calendar */
+        .wt-cal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 800;
+            font-family: 'Sora', sans-serif;
+            color: #0c1c14;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .wt-cal-head button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #9ab8a9;
+            padding: 4px;
+            transition: color .2s;
+        }
+
+        .wt-cal-head button:hover {
+            color: #26a676;
+        }
+
+        .wt-cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            text-align: center;
+        }
+
+        .wt-cal-dow {
+            font-size: .75rem;
+            color: #9ab8a9;
+            font-weight: 700;
+            padding-bottom: 12px;
+        }
+
+        .wt-cal-day {
+            width: 36px;
+            height: 36px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .9rem;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #0c1c14;
+            font-weight: 600;
+            transition: all .2s;
+        }
+
+        .wt-cal-day:hover:not(.disabled) {
+            background: #eaf8f1;
+            color: #26a676;
+        }
+
+        .wt-cal-day.disabled {
+            color: #c5d8cd;
+            cursor: not-allowed;
+        }
+
+        .wt-cal-day.sel {
+            background: #26a676;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(38, 166, 118, .3);
+        }
+
+        /* Right Side: Form Inputs */
+        .wt-form {
+            border-left: 1.5px solid #f0f5f2;
+            padding-left: 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .wt-form-label {
+            display: block;
+            font-size: .85rem;
+            font-weight: 700;
+            color: #0c1c14;
+            margin-bottom: 10px;
+        }
+
+        .wt-input-group {
+            display: flex;
+            gap: 0;
+            border: 1.5px solid #e3ede8;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            transition: border-color .2s;
+        }
+
+        .wt-input-group:focus-within {
+            border-color: #26a676;
+        }
+
+        .wt-input-group input {
+            border: none;
+            padding: 12px 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .9rem;
+            color: #0c1c14;
+            outline: none;
+            background: #fff;
+            width: 100%;
+            font-weight: 500;
+        }
+
+        .wt-input-group input:first-child {
+            border-right: 1.5px solid #e3ede8;
+            flex: 1.3;
+            color: #2a4e3c;
+        }
+
+        .wt-input-group input[type="time"] {
+            flex: 0.7;
+            cursor: pointer;
+        }
+
+        .wt-toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: .85rem;
+            font-weight: 600;
+            color: #0c1c14;
+        }
+
+        .wt-toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+
+        .wt-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .wt-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e3ede8;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .wt-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+        }
+
+        .wt-toggle input:checked+.wt-slider {
+            background-color: #26a676;
+        }
+
+        .wt-toggle input:checked+.wt-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Footer */
+        .wt-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 32px;
+            border-top: 1.5px solid #f0f5f2;
+            background: #fff;
+            border-radius: 0 0 28px 28px;
+        }
+
+        .wt-event-text {
+            font-size: .85rem;
+            color: #6a8b7c;
+        }
+
+        .wt-event-text strong {
+            color: #0c1c14;
+            font-weight: 700;
+        }
+
+        .wt-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .wt-btn-cancel {
+            background: #fff;
+            border: 1.5px solid #e3ede8;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .9rem;
+            font-weight: 700;
+            color: #2a4e3c;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .wt-btn-cancel:hover {
+            background: #f0f5f2;
+            border-color: #c5d8cd;
+        }
+
+        .wt-btn-schedule {
+            background: #26a676;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .9rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: all .2s;
+            box-shadow: 0 4px 12px rgba(38, 166, 118, .3);
+        }
+
+        .wt-btn-schedule:hover:not(:disabled) {
+            background: #1e8760;
+            box-shadow: 0 6px 16px rgba(38, 166, 118, .4);
+        }
+
+        .wt-btn-schedule:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        @media(max-width: 680px) {
+            .wt-body {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 24px 20px;
+            }
+
+            .wt-form {
+                border-left: none;
+                padding-left: 0;
+                border-top: 1px solid #e3ede8;
+                padding-top: 24px;
+            }
+
+            .wt-footer {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+                padding: 20px;
+            }
+
+            .wt-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- ── HERO SECTION ── -->
+    <section class="hp-wrapper" id="hp-hero-section">
+        <div class="hp-bg-grid"></div>
+        <div class="hp-glow"></div>
+
+        <div class="fl-el fl-note app-note">
+            <span class="fl-note-title">Take notes</span>
+            <span class="fl-note-text">to keep track of crucial property details, access codes, and accomplish more
+                tasks with ease.</span>
+        </div>
+        <div class="fl-el app-airbnb fl-sz-lg sh-pill">
+            <div class="fl-ic" style="background:#FFF0EE;"><svg width="24" height="24" viewBox="0 0 24 24"
+                    fill="#FF5A5F">
+                    <path
+                        d="M11.998 0C6.717 0 2.42 4.297 2.42 9.578c0 3.007 1.41 5.855 3.791 7.69L11.998 24l5.787-6.732c2.382-1.835 3.791-4.683 3.791-7.69C21.576 4.297 17.279 0 11.998 0zm0 13.44a3.862 3.862 0 110-7.724 3.862 3.862 0 010 7.724z" />
+                </svg></div>
+            <div>
+                <div class="fl-title">Airbnb</div>
+                <div class="fl-sub">Listing platform</div>
+            </div>
+        </div>
+        <div class="fl-el app-vrbo fl-sz-md sh-box" style="border-left:4px solid #1555C0;">
+            <div class="fl-ic" style="background:#EEF4FF;"><svg width="20" height="20" viewBox="0 0 24 24"
+                    fill="#1555C0">
+                    <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 14l-5-8h10l-5 8z" />
+                </svg></div>
+            <div>
+                <div class="fl-title">VRBO</div>
+                <div class="fl-sub">Listing platform</div>
+            </div>
+        </div>
+        <div class="fl-el app-booking fl-sz-md sh-folder">
+            <div class="fl-ic" style="background:#EEF2FF;"><svg width="20" height="20" viewBox="0 0 24 24"
+                    fill="#003580">
+                    <path
+                        d="M6 2h12a2 2 0 012 2v16a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2zm1 4v2h2V6H7zm0 4v2h2v-2H7zm0 4v2h2v-2H7zm4-8v2h6V6h-6zm0 4v2h6v-2h-6zm0 4v2h6v-2h-6z" />
+                </svg></div>
+            <div>
+                <div class="fl-title" style="color:#003580;">Booking.com</div>
+                <div class="fl-sub">Listing platform</div>
+            </div>
+        </div>
+        <div class="fl-el app-whatsapp fl-sz-lg sh-chat">
+            <div class="fl-ic" style="background:#EDFAF3;"><svg width="26" height="26" viewBox="0 0 24 24"
+                    fill="#25D366">
+                    <path
+                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                </svg></div>
+            <div>
+                <div class="fl-title">WhatsApp</div>
+                <div class="fl-sub">Inquiry channel</div>
+            </div>
+        </div>
+        <div class="fl-el app-unified fl-sz-md sh-folder"
+            style="background:rgba(245,240,255,.95);border-color:rgba(139,92,246,.2);">
+            <div class="fl-ic" style="background:#F3EEFF;"><svg width="18" height="18" viewBox="0 0 24 24"
+                    fill="#8B5CF6">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+                </svg></div>
+            <div>
+                <div class="fl-title" style="color:#4C1D95;">Unified Inbox</div>
+                <div class="fl-sub" style="color:#7C3AED;">All channels</div>
+            </div>
+        </div>
+        <div class="fl-el app-agoda fl-sz-md sh-box">
+            <div class="fl-ic" style="background:#FFF3EE;"><svg width="20" height="20" viewBox="0 0 24 24"
+                    fill="#E0471F">
+                    <path
+                        d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 3a3 3 0 110 6 3 3 0 010-6zm0 14.2a7.2 7.2 0 01-6-3.22c.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08a7.2 7.2 0 01-6 3.22z" />
+                </svg></div>
+            <div>
+                <div class="fl-title">Agoda</div>
+                <div class="fl-sub">Listing platform</div>
+            </div>
+        </div>
+        <div class="fl-el app-facebook fl-sz-md sh-box" style="border-left:4px solid #1877F2;">
+            <div class="fl-ic" style="background:#EEF3FF;"><svg width="20" height="20" viewBox="0 0 24 24"
+                    fill="#1877F2">
+                    <path
+                        d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.532-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.269h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
+                </svg></div>
+            <div>
+                <div class="fl-title">Facebook</div>
+                <div class="fl-sub">Inquiry channel</div>
+            </div>
+        </div>
+
+        <div class="hp-center-content">
+            <div class="hp-badge"><span class="dot"></span>DONE-FOR-YOU RENTAL MANAGEMENT</div>
+            <h1 class="hp-h1">Stop leaving<br><span>$2,400/mo</span><br>on the table.</h1>
+            <p class="hp-desc">HostOps dedicated team handles everything — guest messaging, dynamic pricing, cleaning
+                coordination, and booking support. You collect the income. We do the work.</p>
+            <div class="hp-btns">
+                <button class="hp-btn-primary">Start Earning More &rarr;</button>
+                <button class="hp-btn-secondary" id="hp-open">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#26a676" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                    </svg>
+                    See How It Works
+                </button>
+            </div>
+            <div class="hp-trust">
+                <div class="hp-avatars">
+                    <div class="hp-avatar">JR</div>
+                    <div class="hp-avatar">SA</div>
+                    <div class="hp-avatar">MK</div>
+                    <div class="hp-avatar">+</div>
+                </div>
+                <div class="hp-trust-text"><strong>500+ property owners</strong> already earning more</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── MODAL ── -->
+    <div class="hc-overlay" id="hc-overlay">
+        <div class="hc-card">
+            <div class="hc-panel-left" id="hc-panel-left">
+                <div>
+                    <div class="hc-panel-logo">
+                        <div class="hc-panel-logomark"><svg width="16" height="16" viewBox="0 0 24 24" fill="#4ecba0">
+                                <path d="M12 2L2 7v10l10 5 10-5V7L12 2z" />
+                            </svg></div>
+                        <span class="hc-panel-brand">HostPilot</span>
+                    </div>
+                    <div class="hc-panel-steps" id="hc-panel-steps"></div>
+                </div>
+                <div class="hc-panel-footer">
+                    <div class="hc-panel-guarantee">
+                        <div class="hc-pg-title">30-Day Guarantee</div>
+                        <div class="hc-pg-text">Not happy in your first month? We make it right — no questions asked.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="hc-panel-right">
+                <div class="hc-head">
+                    <button class="hc-close" id="hc-close">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="hc-body" id="hc-body"></div>
+                <div class="hc-foot" id="hc-foot"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SETUP MODAL ── -->
+    <div id="ss-overlay">
+        <div class="ss-card">
+            <div class="ss-head">
+                <button class="ss-close" id="ss-close">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+            <div class="ss-body">
+                <div id="ss-bar"></div>
+                <div id="ss-title" class="ss-title"></div>
+                <div id="ss-sub" class="ss-sub"></div>
+                <div id="ss-content"></div>
+            </div>
+            <div class="ss-foot" id="ss-foot"></div>
+        </div>
+    </div>
+
+    <div id="ss-walkthrough">
+        <div class="ss-wt-card" id="ss-wt-card">
+
+            <div id="wt-step-1" style="padding: 48px 36px;">
+                <div class="ss-wt-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#26a676" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                </div>
+                <div class="ss-wt-title">Schedule Your Quick Walkthrough</div>
+                <div class="ss-wt-sub">Choose a time that works best for you and we'll walk you through how HostOps
+                    works.</div>
+                <div>
+                    <button class="ss-wt-btn" id="ss-select-time-btn">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                        Select a Time
+                    </button>
+                </div>
+                <div style="font-size:.75rem;color:#9ab8a9;margin-bottom:14px;">This takes less than 10 minutes</div>
+                <button class="ss-wt-back-link" id="ss-wt-back">← Back to site</button>
+            </div>
+
+            <div id="wt-step-2" style="display:none;">
+
+                <div class="wt-header">
+                    <div class="wt-header-ic">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                    </div>
+                    <div class="wt-header-txt">
+                        <h3>Schedule a walkthrough</h3>
+                        <p>Create your next meeting easily.</p>
+                    </div>
+                </div>
+
+                <div class="wt-body">
+                    <div>
+                        <div class="wt-cal-head">
+                            <button id="cal-prev" type="button"><svg width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                    <polyline points="15 18 9 12 15 6" />
+                                </svg></button>
+                            <span id="cal-month-year">July 2026</span>
+                            <button id="cal-next" type="button"><svg width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                    <polyline points="9 18 15 12 9 6" />
+                                </svg></button>
+                        </div>
+                        <div class="wt-cal-grid" id="cal-grid">
+                        </div>
+                    </div>
+
+                    <div class="wt-form">
+                        <label class="wt-form-label">Schedule date*</label>
+                        <div class="wt-input-group">
+                            <input type="text" id="wt-date-val" readonly placeholder="Select a date">
+                            <select id="wt-time-val"
+                                style="border: none; padding: 12px 14px; font-family: 'DM Sans', sans-serif; font-size: .9rem; color: #0c1c14; outline: none; background: #fff; width: 100%; cursor: pointer; flex: 0.7;">
+                                <option value="">Select Date First</option>
+                            </select>
+                        </div>
+
+                        <div class="wt-toggle-row">
+                            <span>Enable SMS reminders</span>
+                            <label class="wt-toggle">
+                                <input type="checkbox" checked>
+                                <span class="wt-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wt-footer">
+                    <div class="wt-event-text" id="wt-event-display">Event: <strong>Select a date & time</strong></div>
+                    <div class="wt-actions">
+                        <button class="wt-btn-cancel" id="wt-btn-cancel">Cancel</button>
+                        <button class="wt-btn-schedule" id="ss-confirm-time" disabled>Schedule</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="wt-step-3" style="display:none; padding: 48px 36px;">
+                <div class="ss-wt-icon" style="background:#26a676;color:#fff;border:none;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                </div>
+                <div class="ss-wt-title">Walkthrough Scheduled!</div>
+                <div class="ss-wt-sub" style="margin-bottom:28px;">A calendar invitation has been sent to your email. We
+                    look forward to showing you the system.</div>
+                <button class="ss-btn-next" id="ss-finish-btn" style="width:100%;justify-content:center;">Go to your
+                    Dashboard →</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── PRICING MODAL (3-STEP) ── -->
+    <div id="pricing-overlay"
+        style="position:fixed;inset:0;z-index:999999;background:rgba(4,14,9,.6);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;visibility:hidden;transition:opacity .3s ease,visibility .3s ease;">
+        <div id="pricing-card"
+            style="width:100%;max-width:520px;background:#f8fbf9;border-radius:24px;overflow:hidden;box-shadow:0 40px 120px rgba(4,14,9,.25);transform:translateY(24px) scale(.97);transition:transform .4s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto;">
+
+            <!-- HEAD -->
+            <div style="display:flex;justify-content:flex-end;padding:16px 20px 0;">
+                <button id="pricing-close"
+                    style="width:30px;height:30px;border-radius:50%;border:none;background:#e8f0ec;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#6a8b7c;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <div style="padding:0 28px 28px;" id="pricing-body"></div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0 28px 28px;"
+                id="pricing-foot"></div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            // ── EXISTING "See How It Works" modal (keep as-is) ──
+            var overlay = document.getElementById('hc-overlay');
+            var body = document.getElementById('hc-body');
+            var foot = document.getElementById('hc-foot');
+            var stepsEl = document.getElementById('hc-panel-steps');
+            var answers = {};
+            var sel = null;
+            var cur = 0;
+            var STEPS = [
+                { num: 'Your name', sub: 'Quick intro', q: 'What\'s your name?', hint: 'So we know who to set up the demo for.', type: 'text', ph: 'e.g. Maria Santos', ac: 'name', key: 'name', valid: function (v) { return v.trim().length > 0; } },
+                { num: 'Your email', sub: 'Stay in touch', q: 'Where do we send your demo?', hint: 'We\'ll email you a personalized summary right after.', type: 'email', ph: 'e.g. maria@example.com', ac: 'email', key: 'email', valid: function (v) { return v.includes('@') && v.includes('.'); } },
+                { num: 'Portfolio size', sub: 'Tailor your demo', q: 'How many properties do you manage?', hint: 'Helps us tailor the demo to your portfolio size.', type: 'opts', opts: ['Just 1', '2 – 3', '4 – 6', '7 or more'], key: 'props' }
+            ];
+            function renderSidebar() { stepsEl.innerHTML = STEPS.map(function (s, i) { var state = i < cur ? 'done' : i === cur ? 'active' : 'pending'; return '<div class="hc-panel-step"><div class="hc-ps-dot ' + state + '">' + (i < cur ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>' : (i + 1)) + '</div><div class="hc-ps-info"><div class="hc-ps-label ' + state + '">' + s.num + '</div><div class="hc-ps-sub ' + (state === 'active' ? 'active' : '') + '">' + s.sub + '</div></div></div>'; }).join(''); }
+            document.addEventListener('click', function (e) {
+                if (e.target.closest('#hp-open')) {
+                    e.preventDefault();
+                    overlay.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                    cur = 0; answers = {}; sel = null; render();
+                }
+                else if (e.target.closest('#hc-close')) {
+                    e.preventDefault();
+                    closeModal();
+                }
+            });
+            function closeModal() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+            overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal(); });
+            function render() { if (cur >= STEPS.length) { successDemo(); return; } var s = STEPS[cur]; sel = answers[s.key] || null; renderSidebar(); body.innerHTML = '<div class="hc-step-eyebrow">Step ' + (cur + 1) + ' of ' + STEPS.length + '</div><div class="hc-q">' + s.q + '</div><div class="hc-hint">' + s.hint + '</div>' + (s.type === 'opts' ? '<div class="hc-opts">' + s.opts.map(function (o) { return '<button class="hc-opt' + (o === sel ? ' sel' : '') + '" data-v="' + o + '">' + o + '</button>'; }).join('') + '</div>' : '<input class="hc-field" id="hc-f" type="' + s.type + '" placeholder="' + s.ph + '" autocomplete="' + s.ac + '" value="' + (answers[s.key] || '') + '" />'); var ready = (s.type === 'opts' && sel !== null) || (s.type !== 'opts'); foot.innerHTML = (cur > 0 ? '<button class="hc-btn-back" id="hc-back"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back</button>' : '<span></span>') + '<button class="hc-btn-next" id="hc-next"' + (ready ? '' : ' disabled') + '>' + (cur === STEPS.length - 1 ? 'Finish <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : 'Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>') + '</button>'; if (s.type !== 'opts') { var f = document.getElementById('hc-f'); setTimeout(function () { f && f.focus(); }, 60); f && f.addEventListener('input', function () { document.getElementById('hc-next').disabled = !s.valid(f.value.trim()); }); f && f.addEventListener('keydown', function (e) { if (e.key === 'Enter') nextStep(); }); if (f) document.getElementById('hc-next').disabled = !s.valid(f.value.trim()); } else { document.querySelectorAll('.hc-opt').forEach(function (b) { b.addEventListener('click', function () { document.querySelectorAll('.hc-opt').forEach(function (x) { x.classList.remove('sel'); }); b.classList.add('sel'); sel = b.getAttribute('data-v'); document.getElementById('hc-next').disabled = false; }); }); } document.getElementById('hc-next').addEventListener('click', nextStep); var bk = document.getElementById('hc-back'); if (bk) bk.addEventListener('click', function () { cur--; render(); }); }
+            function nextStep() { var s = STEPS[cur]; if (s.type === 'opts') { if (!sel) return; answers[s.key] = sel; } else { var f = document.getElementById('hc-f'); var v = f ? f.value.trim() : ''; if (!s.valid(v)) { f && f.classList.add('shake'); setTimeout(function () { f && f.classList.remove('shake'); }, 400); f && f.focus(); return; } answers[s.key] = v; } cur++; render(); }
+            function successDemo() {
+                closeModal();
+
+                // --- ITO YUNG WEBHOOK NA MAGPAPADALA SA AUTOMATION MO ---
+                fetch('https://services.leadconnectorhq.com/hooks/tNBNUWL2UsKDlnI8KfJk/webhook-trigger/50e91553-7141-4e88-a5c2-bc2f0d4d7672', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        first_name: answers && answers.name ? answers.name.split(' ')[0] : '',
+                        last_name: answers && answers.name ? answers.name.split(' ').slice(1).join(' ') : '',
+                        email: answers && answers.email ? answers.email : '',
+                        portfolio_size: answers && answers.props ? answers.props : ''
+                    })
+                }).catch(function (error) { console.error('Webhook Error:', error); });
+                // --- END NG WEBHOOK ---
+
+                var dp = document.getElementById('hp-demo-page');
+                dp.classList.add('show-dashboard');
+                document.documentElement.style.overflow = 'hidden';
+                document.body.style.overflow = 'hidden';
+                var n = answers && answers.name ? answers.name.split(' ')[0] : 'Owner';
+                var h = document.getElementById('demo-owner-name');
+                if (h) h.textContent = n + "'s Dashboard";
+                dp.scrollTo(0, 0);
+            }
+            document.getElementById('hp-btn-back-main').addEventListener('click', function () { document.getElementById('hp-demo-page').classList.remove('show-dashboard'); document.documentElement.style.overflow = ''; document.body.style.overflow = ''; });
+
+            // ── NEW "Start Setup" 3-step modal ──
+            var ssOverlay = document.getElementById('ss-overlay');
+            var ssCur = 0;
+            var ssAnswers = { name: '', email: '', props: '', platforms: [], otherPlatform: '' };
+            var PLATFORMS = ['Airbnb', 'VRBO', 'Booking.com', 'Facebook Page', 'Google Business Profile', 'WhatsApp'];
+
+            function openSetup() {
+                ssOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; ssCur = 0;
+                var mappedProps = '';
+                if (answers && answers.props) {
+                    var p = answers.props;
+                    if (p === 'Just 1' || p === '2 – 3' || p === '1–3 properties') mappedProps = '1–3 properties';
+                    else if (p === '4 – 6' || p === '7 or more' || p === '4–7 properties') mappedProps = '4–7 properties';
+                }
+                ssAnswers = { name: answers && answers.name || '', email: answers && answers.email || '', props: mappedProps || '1–3 properties', platforms: [], otherPlatform: '' };
+                ssRender();
+            }
+            function closeSetup() { ssOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+
+            document.querySelectorAll('.cta-btn-secondary').forEach(function (btn) {
+                btn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); openSetup(); });
+            });
+
+            ssOverlay.addEventListener('click', function (e) { if (e.target === ssOverlay) closeSetup(); });
+            document.getElementById('ss-close').addEventListener('click', closeSetup);
+
+            function ssRender() {
+                var bar = document.getElementById('ss-bar');
+                var title = document.getElementById('ss-title');
+                var sub = document.getElementById('ss-sub');
+                var content = document.getElementById('ss-content');
+                var footEl = document.getElementById('ss-foot');
+
+                var pct = Math.round(((ssCur + 1) / 2) * 100);
+                bar.innerHTML = '<div style="height:4px;background:#e3ede8;border-radius:4px;overflow:hidden;margin-bottom:6px;"><div style="height:100%;width:' + pct + '%;background:#26a676;border-radius:4px;transition:width .4s ease;"></div></div><div style="font-size:.72rem;color:#9ab8a9;font-weight:600;">Step ' + (ssCur + 1) + ' of 2 — ' + ['Confirmation', 'Your Details'][ssCur] + '</div>';
+
+                if (ssCur === 0) {
+                    title.textContent = 'Start Your HostOps Setup';
+                    sub.textContent = "You're about to begin your onboarding and system build.";
+                    content.innerHTML = '<div style="border:1px solid #e3ede8;border-radius:14px;padding:22px 20px;margin-top:8px;"><div style="font-size:.88rem;font-weight:700;color:#0c1c14;margin-bottom:14px;">What happens next:</div>' + ['We collect your property and platform details', 'We set up and centralize your operations into one system', 'Our team prepares everything for activation'].map(function (t) { return '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#26a676" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><polyline points="20 6 9 17 4 12"/></svg><span style="font-size:.85rem;color:#2a4e3c;line-height:1.5;">' + t + '</span></div>'; }).join('') + '</div>';
+                    footEl.innerHTML = '<span></span><button class="ss-btn-next" id="ss-next">Continue <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>';
+                } else if (ssCur === 1) {
+                    title.textContent = 'Tell us about your setup';
+                    sub.textContent = "We'll use this to prepare your system.";
+                    content.innerHTML =
+                        '<div style="margin-bottom:14px;"><label class="ss-label">Full Name</label><input class="hc-field" id="ss-name" type="text" placeholder="Your full name" value="' + ssAnswers.name + '"' + (ssAnswers.name ? ' disabled style="opacity:.6;cursor:not-allowed;background:#f0f5f2;"' : '') + '/></div>' +
+                        '<div style="margin-bottom:14px;"><label class="ss-label">Email</label><input class="hc-field" id="ss-email" type="email" placeholder="you@example.com" value="' + ssAnswers.email + '"' + (ssAnswers.email ? ' disabled style="opacity:.6;cursor:not-allowed;background:#f0f5f2;"' : '') + '/></div>' +
+                        '<div style="margin-bottom:14px;"><label class="ss-label">Number of Properties</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+                        ['1–3 properties', '4–7 properties'].map(function (o) { return '<button class="ss-prop-btn' + (ssAnswers.props === o ? ' sel' : '') + '" data-v="' + o + '">' + o + '</button>'; }).join('') +
+                        '</div></div>' +
+                        '<div style="margin-bottom:10px;"><label class="ss-label">Platforms Currently Used</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+                        PLATFORMS.map(function (p) { var chk = ssAnswers.platforms.indexOf(p) > -1; return '<button class="ss-plat-btn' + (chk ? ' sel' : '') + '" data-v="' + p + '"><span class="ss-chk' + (chk ? ' on' : '') + '"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>' + p + '</button>'; }).join('') +
+                        '</div></div>' +
+                        '<div><label class="ss-label" style="color:#9ab8a9;font-size:.72rem;">Other platform(s)</label><input class="hc-field" id="ss-other" type="text" placeholder="e.g., direct website, niche booking site" value="' + ssAnswers.otherPlatform + '"/></div>';
+
+                    // Prop buttons
+                    document.querySelectorAll('.ss-prop-btn').forEach(function (b) {
+                        b.addEventListener('click', function () { document.querySelectorAll('.ss-prop-btn').forEach(function (x) { x.classList.remove('sel'); }); b.classList.add('sel'); ssAnswers.props = b.getAttribute('data-v'); ssUpdateNextBtn(); });
+                    });
+                    // Platform checkboxes
+                    // Platform checkboxes
+                    document.querySelectorAll('.ss-plat-btn').forEach(function (b) {
+                        b.addEventListener('click', function () { var v = b.getAttribute('data-v'); var idx = ssAnswers.platforms.indexOf(v); if (idx > -1) { ssAnswers.platforms.splice(idx, 1); b.classList.remove('sel'); b.querySelector('.ss-chk').classList.remove('on'); } else { ssAnswers.platforms.push(v); b.classList.add('sel'); b.querySelector('.ss-chk').classList.add('on'); } ssUpdateNextBtn(); });
+                    });
+
+                    footEl.innerHTML = '<button class="hc-btn-back" id="ss-back"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back</button><button class="ss-btn-next" id="ss-next" disabled>Continue <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>';
+
+                    document.getElementById('ss-name').addEventListener('input', function () { ssAnswers.name = this.value; ssUpdateNextBtn(); });
+                    document.getElementById('ss-email').addEventListener('input', function () { ssAnswers.email = this.value; ssUpdateNextBtn(); });
+                    document.getElementById('ss-other').addEventListener('input', function () { ssAnswers.otherPlatform = this.value; });
+                    setTimeout(function () { ssUpdateNextBtn(); }, 0);
+                }
+
+                document.getElementById('ss-next') && document.getElementById('ss-next').addEventListener('click', function () {
+                    if (ssCur === 1) { ssConfirm(); } else { ssCur++; ssRender(); }
+                });
+            }
+
+            function ssUpdateNextBtn() {
+                var btn = document.getElementById('ss-next');
+                if (!btn) return;
+                var nameField = document.getElementById('ss-name');
+                var emailField = document.getElementById('ss-email');
+                var nameVal = nameField ? nameField.value.trim() : ssAnswers.name;
+                var emailVal = emailField ? emailField.value.trim() : ssAnswers.email;
+                var nameOk = nameVal && nameVal.length > 0;
+                var emailOk = emailVal && emailVal.includes('@') && emailVal.includes('.');
+                var propsOk = ssAnswers.props !== '' && ssAnswers.props !== null && ssAnswers.props !== undefined;
+                var platformOk = ssAnswers.platforms.length > 0;
+                btn.disabled = !(nameOk && emailOk && propsOk && platformOk);
+            }
+
+            function ssConfirm() {
+                closeSetup();
+                // Show walkthrough screen
+                var wt = document.getElementById('ss-walkthrough');
+                wt.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+
+            document.getElementById('ss-wt-back') && document.getElementById('ss-wt-back').addEventListener('click', function () {
+                document.getElementById('ss-walkthrough').classList.remove('open');
+                document.body.style.overflow = '';
+            });
+
+            // ── WALKTHROUGH CALENDAR LOGIC (SIDE-BY-SIDE) ──
+            var wtCard = document.getElementById('ss-wt-card');
+            var wtStep1 = document.getElementById('wt-step-1');
+            var wtStep2 = document.getElementById('wt-step-2');
+            var wtStep3 = document.getElementById('wt-step-3');
+
+            var calGrid = document.getElementById('cal-grid');
+            var calMonthYear = document.getElementById('cal-month-year');
+            var btnConfirm = document.getElementById('ss-confirm-time');
+            var timeInput = document.getElementById('wt-time-val');
+            var dateInput = document.getElementById('wt-date-val');
+            var eventDisplay = document.getElementById('wt-event-display');
+
+            var currentDate = new Date();
+            var currentMonth = currentDate.getMonth();
+            var currentYear = currentDate.getFullYear();
+            var selectedDate = null;
+
+            var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            var GHL_API_KEY = 'pit-abf69459-770a-4f64-b7e4-80304fd0688a';
+            var GHL_CALENDAR_ID = 'rjN1Rji0ZJM2il18IVOB';
+            var GHL_LOCATION_ID = 'tNBNUWL2UsKDlnI8KfJk';
+            var GHL_DURATION_MINS = 30;
+            var bookedDates = [];
+
+            function formatTime(time24) {
+                if (!time24) return "";
+                var split = time24.split(':');
+                var h = parseInt(split[0]);
+                var m = split[1];
+                var ampm = h >= 12 ? 'pm' : 'am';
+                h = h % 12;
+                h = h ? h : 12;
+                return h + ':' + m + ' ' + ampm;
+            }
+
+            function fetchAvailableSlots(month, year, callback) {
+                var startTs = new Date(year, month, 1).getTime();
+                var endTs = new Date(year, month + 1, 0, 23, 59, 59).getTime();
+
+                fetch('https://services.leadconnectorhq.com/calendars/' + GHL_CALENDAR_ID + '/free-slots?startDate=' + startTs + '&endDate=' + endTs + '&timezone=Asia%2FManila', {
+                    headers: {
+                        'Authorization': 'Bearer ' + GHL_API_KEY,
+                        'Version': '2021-04-15'
+                    }
+                })
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        bookedDates = [];
+                        if (data) {
+                            // Loop through all days in the month. If GHL didn't return slots for that day, block it.
+                            var daysInMonth = new Date(year, month + 1, 0).getDate();
+                            for (var i = 1; i <= daysInMonth; i++) {
+                                var dStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(i).padStart(2, '0');
+                                if (!data[dStr] || !data[dStr].slots || data[dStr].slots.length === 0) {
+                                    bookedDates.push(dStr);
+                                }
+                            }
+                        }
+                        if (callback) callback();
+                    })
+                    .catch(function () {
+                        if (callback) callback();
+                    });
+            }
+
+            function updateFooter() {
+                if (selectedDate && timeInput.value) {
+                    var dateStr = monthNames[selectedDate.getMonth()] + ' ' + selectedDate.getDate() + ', ' + selectedDate.getFullYear();
+                    dateInput.value = dateStr;
+                    eventDisplay.innerHTML = 'Event: <strong>' + dateStr + ', ' + formatTime(timeInput.value) + '</strong>';
+                    btnConfirm.disabled = false;
+                } else {
+                    dateInput.value = '';
+                    eventDisplay.innerHTML = 'Event: <strong>Select a date & time</strong>';
+                    btnConfirm.disabled = true;
+                }
+            }
+
+            document.addEventListener('click', function (e) {
+
+                // 1. Open Side-by-Side Calendar
+                if (e.target.closest('#ss-select-time-btn')) {
+                    if (wtStep1 && wtStep2) {
+                        wtStep1.style.display = 'none';
+                        wtStep2.style.display = 'block';
+                        wtCard.classList.add('wide');
+                        fetchAvailableSlots(currentMonth, currentYear, function () {
+                            renderCalendar(currentMonth, currentYear);
+                        });
+                    }
+                }
+
+                // 2. Cancel Button
+                if (e.target.closest('#wt-btn-cancel')) {
+                    wtStep2.style.display = 'none';
+                    wtStep1.style.display = 'block';
+                    wtCard.classList.remove('wide');
+                }
+
+                // 3. Month Navigation
+                if (e.target.closest('#cal-prev')) {
+                    currentMonth--;
+                    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+                    fetchAvailableSlots(currentMonth, currentYear, function () {
+                        renderCalendar(currentMonth, currentYear);
+                    });
+                }
+                if (e.target.closest('#cal-next')) {
+                    currentMonth++;
+                    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+                    fetchAvailableSlots(currentMonth, currentYear, function () {
+                        renderCalendar(currentMonth, currentYear);
+                    });
+                }
+
+                var dayBtn = e.target.closest('.wt-cal-day:not(.disabled)');
+                if (dayBtn && calGrid && calGrid.contains(dayBtn)) {
+                    var d = parseInt(dayBtn.getAttribute('data-date'));
+                    selectedDate = new Date(currentYear, currentMonth, d);
+                    renderCalendar(currentMonth, currentYear);
+
+                    var timeDropdown = document.getElementById('wt-time-val');
+                    timeDropdown.innerHTML = '<option>Loading slots...</option>';
+                    timeDropdown.disabled = true;
+                    document.getElementById('ss-confirm-time').disabled = true;
+
+                    var yyyy = selectedDate.getFullYear();
+                    var mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                    var dd2 = String(selectedDate.getDate()).padStart(2, '0');
+                    var startTs = new Date(yyyy, selectedDate.getMonth(), selectedDate.getDate()).getTime();
+                    var endTs = new Date(yyyy, selectedDate.getMonth(), selectedDate.getDate(), 23, 59, 59).getTime();
+
+                    fetch('https://services.leadconnectorhq.com/calendars/' + GHL_CALENDAR_ID + '/free-slots?startDate=' + startTs + '&endDate=' + endTs + '&timezone=Asia%2FManila', {
+                        headers: {
+                            'Authorization': 'Bearer ' + GHL_API_KEY,
+                            'Version': '2021-04-15'
+                        }
+                    })
+                        .then(function (res) { return res.json(); })
+                        .then(function (data) {
+                            timeDropdown.innerHTML = '';
+                            var dateKey = yyyy + '-' + mm + '-' + dd2;
+                            var slots = data && data[dateKey] && data[dateKey].slots ? data[dateKey].slots : [];
+
+                            if (slots.length > 0) {
+                                slots.forEach(function (slot) {
+                                    var slotDate = new Date(slot);
+                                    var h = slotDate.getUTCHours();
+                                    var mi = slotDate.getUTCMinutes();
+                                    var manilaH = (h + 8) % 24;
+                                    var ampm = manilaH >= 12 ? 'PM' : 'AM';
+                                    var h12 = manilaH % 12;
+                                    h12 = h12 ? h12 : 12;
+                                    var label = String(h12).padStart(2, '0') + ':' + String(mi).padStart(2, '0') + ' ' + ampm;
+                                    var val = String(manilaH).padStart(2, '0') + ':' + String(mi).padStart(2, '0');
+                                    var opt = document.createElement('option');
+                                    opt.value = val;
+                                    opt.textContent = label;
+                                    timeDropdown.appendChild(opt);
+                                });
+                                timeDropdown.disabled = false;
+                                document.getElementById('ss-confirm-time').disabled = false;
+                                updateFooter();
+                            } else {
+                                timeDropdown.innerHTML = '<option value="">No available slots</option>';
+                                document.getElementById('ss-confirm-time').disabled = true;
+                                updateFooter();
+                            }
+                        })
+                        .catch(function () {
+                            timeDropdown.innerHTML = '<option value="">Error loading slots</option>';
+                            document.getElementById('ss-confirm-time').disabled = true;
+                        });
+
+                    return;
+                }
+
+                if (e.target.closest('#ss-confirm-time')) {
+                    var confirmBtn = e.target.closest('#ss-confirm-time');
+                    if (confirmBtn.disabled) return;
+                    confirmBtn.disabled = true;
+                    confirmBtn.textContent = 'Scheduling...';
+
+                    var schedTime = document.getElementById('wt-time-val').value || '09:00';
+                    var timeParts = schedTime.split(':');
+                    var dateToUse = selectedDate ? selectedDate : new Date();
+                    var h24 = parseInt(timeParts[0]);
+                    var mi = parseInt(timeParts[1]);
+
+                    function toManilaISO(y, mo, d, h, m) {
+                        return y + '-' +
+                            String(mo + 1).padStart(2, '0') + '-' +
+                            String(d).padStart(2, '0') + 'T' +
+                            String(h).padStart(2, '0') + ':' +
+                            String(m).padStart(2, '0') + ':00+08:00';
+                    }
+
+                    var sISO = toManilaISO(dateToUse.getFullYear(), dateToUse.getMonth(), dateToUse.getDate(), h24, mi);
+                    var endTotalMins = h24 * 60 + mi + GHL_DURATION_MINS;
+                    var endH = Math.floor(endTotalMins / 60) % 24;
+                    var endM = endTotalMins % 60;
+                    var eISO = toManilaISO(dateToUse.getFullYear(), dateToUse.getMonth(), dateToUse.getDate(), endH, endM);
+
+                    var apiHeaders = {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + GHL_API_KEY,
+                        'Version': '2021-07-28'
+                    };
+
+                    fetch('https://services.leadconnectorhq.com/contacts/upsert', {
+                        method: 'POST',
+                        headers: apiHeaders,
+                        body: JSON.stringify({
+                            firstName: ssAnswers.name.split(' ')[0],
+                            lastName: ssAnswers.name.split(' ').slice(1).join(' ') || '',
+                            email: ssAnswers.email,
+                            locationId: GHL_LOCATION_ID,
+                            tags: ['HostPilot Lead']
+                        })
+                    })
+                        .then(function (res) {
+                            if (!res.ok) {
+                                return res.json().then(function (err) { throw new Error(JSON.stringify(err)); });
+                            }
+                            return res.json();
+                        })
+                        .then(function (cData) {
+                            var contactId = (cData && cData.contact && cData.contact.id)
+                                ? cData.contact.id
+                                : (cData && cData.id ? cData.id : null);
+                            if (!contactId) throw new Error('Contact creation failed');
+
+                            return fetch('https://services.leadconnectorhq.com/calendars/events/appointments', {
+                                method: 'POST',
+                                headers: apiHeaders,
+                                body: JSON.stringify({
+                                    calendarId: GHL_CALENDAR_ID,
+                                    locationId: GHL_LOCATION_ID,
+                                    contactId: contactId,
+                                    startTime: sISO,
+                                    endTime: eISO,
+                                    selectedTimezone: 'Asia/Manila',
+                                    title: 'Walkthrough - ' + ssAnswers.name,
+                                    appointmentStatus: 'confirmed',
+                                    notes: 'Properties: ' + ssAnswers.props + ' | Platforms: ' + ssAnswers.platforms.join(', ')
+                                })
+                            });
+                        })
+                        .then(function (res) { return res.json(); })
+                        .then(function (aData) {
+                            console.log('Appointment created:', aData);
+                            confirmBtn.textContent = 'Schedule';
+                            document.getElementById('wt-step-2').style.display = 'none';
+                            document.getElementById('wt-step-3').style.display = 'block';
+                            document.getElementById('ss-wt-card').classList.remove('wide');
+                        })
+                        .catch(function (err) {
+                            console.error('Booking error:', err);
+                            alert('Something went wrong. Please try again.');
+                            confirmBtn.disabled = false;
+                            confirmBtn.textContent = 'Schedule';
+                        });
+                }
+
+                if (e.target.closest('#ss-finish-btn')) {
+                    document.getElementById('ss-walkthrough').classList.remove('open');
+                    var dp = document.getElementById('hp-demo-page');
+                    if (dp) {
+                        dp.classList.add('show-dashboard');
+                        document.documentElement.style.overflow = 'hidden';
+                        document.body.style.overflow = 'hidden';
+                        dp.scrollTo(0, 0);
+                    }
+                }
+            });
+
+            function renderCalendar(month, year) {
+                calMonthYear.textContent = monthNames[month] + ' ' + year;
+                var today = new Date(); today.setHours(0, 0, 0, 0);
+                var firstDay = new Date(year, month, 1).getDay();
+                var daysInMonth = new Date(year, month + 1, 0).getDate();
+                var html = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(function (d) { return '<div class="wt-cal-dow">' + d + '</div>'; }).join('');
+                for (var i = 0; i < firstDay; i++) html += '<div></div>';
+                for (var d = 1; d <= daysInMonth; d++) {
+                    var cellDate = new Date(year, month, d); cellDate.setHours(0, 0, 0, 0);
+                    var dateStr = year + '-' + ('0' + (month + 1)).slice(-2) + '-' + ('0' + d).slice(-2);
+                    var isPast = cellDate < today;
+                    var isBooked = bookedDates.indexOf(dateStr) > -1;
+                    var isSel = selectedDate && selectedDate.getFullYear() === year && selectedDate.getMonth() === month && selectedDate.getDate() === d;
+                    var cls = 'wt-cal-day';
+                    if (isPast || isBooked) cls += ' disabled';
+                    if (isSel) cls += ' sel';
+                    html += '<div class="' + cls + '" data-date="' + d + '"' + (isPast || isBooked ? ' aria-disabled="true"' : '') + '>' + d + '</div>';
+                }
+                calGrid.innerHTML = html;
+            }
+
+            // ── PRICING MODAL (3-STEP) ──
+            var pricingOverlay = document.getElementById('pricing-overlay');
+            var pricingCard = document.getElementById('pricing-card');
+            var pricingCur = 0;
+            var pricingAnswers = { plan: 'starter', name: '', email: '', props: '', platforms: [] };
+
+            var pricingPlanFeatures = {
+                starter: ['Guest messaging (24/7)', 'Dynamic pricing', 'Channel management', 'Cleaning coordination'],
+                growth: ['Everything in Starter', 'Priority support', 'Revenue reporting', 'Multi-platform inbox']
+            };
+
+            function openPricing() {
+                pricingCur = 0;
+                var mp = '';
+                var rawP = (answers && answers.props) || '';
+                if (rawP === 'Just 1' || rawP === '2 – 3' || rawP === '1–3 properties') mp = '1–3 properties';
+                else if (rawP === '4 – 6' || rawP === '7 or more' || rawP === '4–7 properties') mp = '4–7 properties';
+                pricingAnswers = { plan: 'starter', name: answers && answers.name || ssAnswers && ssAnswers.name || '', email: answers && answers.email || ssAnswers && ssAnswers.email || '', props: mp || ssAnswers && ssAnswers.props || '', platforms: [] };
+                pricingOverlay.style.visibility = 'visible';
+                setTimeout(function () { pricingOverlay.style.opacity = '1'; pricingCard.style.transform = 'translateY(0) scale(1)'; }, 10);
+                document.body.style.overflow = 'hidden';
+                pricingRender();
+            }
+
+            function closePricing() {
+                pricingOverlay.style.opacity = '0';
+                pricingCard.style.transform = 'translateY(24px) scale(.97)';
+                setTimeout(function () { pricingOverlay.style.visibility = 'hidden'; }, 300);
+                document.body.style.overflow = '';
+            }
+
+            document.getElementById('pricing-close').addEventListener('click', closePricing);
+            pricingOverlay.addEventListener('click', function (e) { if (e.target === pricingOverlay) closePricing(); });
+
+            function pricingProgressBar(step) {
+                var pct = Math.round((step / 3) * 100);
+                var labels = ['Choose Plan', 'Your Details', 'Payment'];
+                return '<div style="height:4px;background:#e3ede8;border-radius:4px;overflow:hidden;margin-bottom:6px;"><div style="height:100%;width:' + pct + '%;background:#26a676;border-radius:4px;transition:width .4s ease;"></div></div>' +
+                    '<div style="font-size:.72rem;color:#9ab8a9;font-weight:600;margin-bottom:18px;">Step ' + step + ' of 3 — ' + labels[step - 1] + '</div>';
+            }
+
+            function pricingRender() {
+                var body = document.getElementById('pricing-body');
+                var foot = document.getElementById('pricing-foot');
+
+                if (pricingCur === 0) {
+                    // STEP 1: Choose Plan
+                    body.innerHTML = pricingProgressBar(1) +
+                        '<div style="font-family:\'Sora\',sans-serif;font-size:1.5rem;font-weight:800;color:#0c1c14;margin-bottom:6px;">Choose Your Plan</div>' +
+                        '<div style="font-size:.88rem;color:#6a8b7c;margin-bottom:20px;">No hidden fees. Cancel anytime after the first month.</div>' +
+                        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+                        // Starter
+                        '<div id="pr-plan-starter" data-plan="starter" style="padding:18px;border-radius:14px;border:2px solid ' + (pricingAnswers.plan === 'starter' ? '#26a676' : '#e3ede8') + ';background:' + (pricingAnswers.plan === 'starter' ? '#eaf8f1' : '#fff') + ';cursor:pointer;transition:all .2s;position:relative;">' +
+                        '<div style="font-size:.72rem;font-weight:700;color:' + (pricingAnswers.plan === 'starter' ? '#1e8760' : '#9ab8a9') + ';letter-spacing:.5px;margin-bottom:8px;">STARTER</div>' +
+                        '<div style="font-family:\'Sora\',sans-serif;font-size:1.6rem;font-weight:800;color:#0c1c14;">$1,500<span style="font-size:.8rem;font-weight:500;color:#6a8b7c;">/mo</span></div>' +
+                        '<div style="font-size:.75rem;color:#26a676;font-weight:600;margin-bottom:12px;">1–3 properties</div>' +
+                        '<div style="font-size:.75rem;color:#6a8b7c;margin-bottom:4px;">+ $2,000 one-time setup</div>' +
+                        pricingPlanFeatures.starter.map(function (f) { return '<div style="font-size:.78rem;color:#2a4e3c;margin-top:5px;display:flex;align-items:center;gap:6px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#26a676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' + f + '</div>'; }).join('') +
+                        '</div>' +
+                        // Growth
+                        '<div id="pr-plan-growth" data-plan="growth" style="padding:18px;border-radius:14px;border:2px solid ' + (pricingAnswers.plan === 'growth' ? '#26a676' : '#e3ede8') + ';background:' + (pricingAnswers.plan === 'growth' ? '#eaf8f1' : '#fff') + ';cursor:pointer;transition:all .2s;position:relative;">' +
+                        '<div style="position:absolute;top:-1px;right:12px;background:#26a676;color:#fff;font-size:.65rem;font-weight:800;padding:3px 10px;border-radius:0 0 8px 8px;letter-spacing:.5px;">POPULAR</div>' +
+                        '<div style="font-size:.72rem;font-weight:700;color:' + (pricingAnswers.plan === 'growth' ? '#1e8760' : '#9ab8a9') + ';letter-spacing:.5px;margin-bottom:8px;">GROWTH</div>' +
+                        '<div style="font-family:\'Sora\',sans-serif;font-size:1.6rem;font-weight:800;color:#0c1c14;">$2,500<span style="font-size:.8rem;font-weight:500;color:#6a8b7c;">/mo</span></div>' +
+                        '<div style="font-size:.75rem;color:#26a676;font-weight:600;margin-bottom:12px;">4–7 properties</div>' +
+                        '<div style="font-size:.75rem;color:#6a8b7c;margin-bottom:4px;">+ $2,000 one-time setup</div>' +
+                        pricingPlanFeatures.growth.map(function (f) { return '<div style="font-size:.78rem;color:#2a4e3c;margin-top:5px;display:flex;align-items:center;gap:6px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#26a676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' + f + '</div>'; }).join('') +
+                        '</div>' +
+                        '</div>' +
+                        '<div style="background:#fffbe6;border:1px solid #f5e08a;border-radius:10px;padding:12px 16px;font-size:.82rem;color:#7a6a00;display:flex;align-items:center;gap:8px;">' +
+                        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+                        '30-day satisfaction guarantee. Not happy? We make it right.' +
+                        '</div>';
+
+                    foot.innerHTML = '<span></span><button id="pr-next" style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:#26a676;color:#fff;font-family:\'DM Sans\',sans-serif;font-size:.95rem;font-weight:700;border:none;border-radius:100px;cursor:pointer;box-shadow:0 6px 20px rgba(38,166,118,.35);">Continue <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>';
+
+                    // Plan click
+                    ['pr-plan-starter', 'pr-plan-growth'].forEach(function (id) {
+                        var el = document.getElementById(id);
+                        if (el) el.addEventListener('click', function () {
+                            pricingAnswers.plan = this.getAttribute('data-plan');
+                            pricingRender();
+                        });
+                    });
+                    document.getElementById('pr-next').addEventListener('click', function () { pricingCur = 1; pricingRender(); });
+
+                } else if (pricingCur === 1) {
+                    // STEP 2: Your Details
+                    var PLATS = ['Airbnb', 'VRBO', 'Booking.com', 'Facebook Page', 'Google Business Profile', 'WhatsApp'];
+                    body.innerHTML = pricingProgressBar(2) +
+                        '<div style="font-family:\'Sora\',sans-serif;font-size:1.5rem;font-weight:800;color:#0c1c14;margin-bottom:6px;">Your Details</div>' +
+                        '<div style="font-size:.88rem;color:#6a8b7c;margin-bottom:20px;">We\'ll use this to set up your account.</div>' +
+                        '<div style="margin-bottom:14px;"><label style="display:block;font-size:.82rem;font-weight:700;color:#0c1c14;margin-bottom:6px;">Full Name</label><input id="pr-name" class="hc-field" type="text" placeholder="Your full name" value="' + pricingAnswers.name + '"' + (pricingAnswers.name ? ' disabled style="opacity:.6;cursor:not-allowed;background:#f0f5f2;"' : '') + ' /></div>' +
+                        '<div style="margin-bottom:14px;"><label style="display:block;font-size:.82rem;font-weight:700;color:#0c1c14;margin-bottom:6px;">Email</label><input id="pr-email" class="hc-field" type="email" placeholder="you@example.com" value="' + pricingAnswers.email + '"' + (pricingAnswers.email ? ' disabled style="opacity:.6;cursor:not-allowed;background:#f0f5f2;"' : '') + ' /></div>' +
+                        '<div style="margin-bottom:14px;"><label style="display:block;font-size:.82rem;font-weight:700;color:#0c1c14;margin-bottom:6px;">Number of Properties</label>' +
+                        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+                        ['1–3 properties', '4–7 properties'].map(function (o) { return '<button class="pr-prop-btn" data-v="' + o + '" style="padding:13px;border-radius:12px;border:2px solid ' + (pricingAnswers.props === o ? '#26a676' : '#e3ede8') + ';background:' + (pricingAnswers.props === o ? '#eaf8f1' : '#fff') + ';font-family:\'DM Sans\',sans-serif;font-size:.88rem;font-weight:600;color:' + (pricingAnswers.props === o ? '#1e8760' : '#2a4e3c') + ';cursor:pointer;">' + o + '</button>'; }).join('') +
+                        '</div></div>' +
+                        '<div style="margin-bottom:4px;"><label style="display:block;font-size:.82rem;font-weight:700;color:#0c1c14;margin-bottom:8px;">Platforms Currently Used</label>' +
+                        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+                        PLATS.map(function (p) { var on = pricingAnswers.platforms.indexOf(p) > -1; return '<button class="pr-plat-btn" data-v="' + p + '" style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:12px;border:1.5px solid ' + (on ? '#26a676' : '#e3ede8') + ';background:' + (on ? '#eaf8f1' : '#fff') + ';font-family:\'DM Sans\',sans-serif;font-size:.82rem;font-weight:600;color:#2a4e3c;cursor:pointer;"><span style="width:18px;height:18px;border-radius:5px;border:1.5px solid ' + (on ? '#26a676' : '#d1e8dd') + ';background:' + (on ? '#26a676' : '#fff') + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="' + (on ? '#fff' : 'transparent') + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>' + p + '</button>'; }).join('') +
+                        '</div></div>';
+
+                    foot.innerHTML = '<button id="pr-back" style="display:inline-flex;align-items:center;gap:6px;background:none;border:none;font-family:\'DM Sans\',sans-serif;font-size:.88rem;color:#9ab8a9;cursor:pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back</button>' +
+                        '<button id="pr-next" disabled style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:#26a676;color:#fff;font-family:\'DM Sans\',sans-serif;font-size:.95rem;font-weight:700;border:none;border-radius:100px;cursor:pointer;box-shadow:0 6px 20px rgba(38,166,118,.35);opacity:.4;">Continue <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>';
+
+                    function prUpdateNext() {
+                        var n = document.getElementById('pr-name');
+                        var em = document.getElementById('pr-email');
+                        var btn = document.getElementById('pr-next');
+                        if (!btn) return;
+                        var nameVal = n ? n.value.trim() : pricingAnswers.name;
+                        var emailVal = em ? em.value.trim() : pricingAnswers.email;
+                        var ok = nameVal.length > 0 && emailVal.includes('@') && emailVal.includes('.') && pricingAnswers.props !== '' && pricingAnswers.platforms.length > 0;
+                        btn.disabled = !ok;
+                        btn.style.opacity = ok ? '1' : '.4';
+                    }
+
+                    document.getElementById('pr-name').addEventListener('input', function () { pricingAnswers.name = this.value; prUpdateNext(); });
+                    document.getElementById('pr-email').addEventListener('input', function () { pricingAnswers.email = this.value; prUpdateNext(); });
+                    document.querySelectorAll('.pr-prop-btn').forEach(function (b) {
+                        b.addEventListener('click', function () { pricingAnswers.props = this.getAttribute('data-v'); pricingRender(); });
+                    });
+                    document.querySelectorAll('.pr-plat-btn').forEach(function (b) {
+                        b.addEventListener('click', function () {
+                            var v = this.getAttribute('data-v');
+                            var idx = pricingAnswers.platforms.indexOf(v);
+                            if (idx > -1) pricingAnswers.platforms.splice(idx, 1); else pricingAnswers.platforms.push(v);
+                            pricingRender();
+                        });
+                    });
+                    document.getElementById('pr-back').addEventListener('click', function () { pricingCur = 0; pricingRender(); });
+                    document.getElementById('pr-next').addEventListener('click', function () { if (!this.disabled) { pricingAnswers.name = document.getElementById('pr-name').value; pricingAnswers.email = document.getElementById('pr-email').value; pricingCur = 2; pricingRender(); } });
+                    prUpdateNext();
+
+                } else if (pricingCur === 2) {
+                    // STEP 3: Payment
+                    var isStarter = pricingAnswers.plan === 'starter';
+                    var planLabel = isStarter ? 'Starter — $1,500/mo' : 'Growth — $2,500/mo';
+                    var planAmt = isStarter ? '$1,500.00' : '$2,500.00';
+                    var setupAmt = '$2,000.00';
+
+                    body.innerHTML = pricingProgressBar(3) +
+                        '<div style="font-family:\'Sora\',sans-serif;font-size:1.5rem;font-weight:800;color:#0c1c14;margin-bottom:6px;">Payment</div>' +
+                        '<div style="font-size:.88rem;color:#6a8b7c;margin-bottom:20px;">Setup fee billed today. Monthly plan begins after activation.</div>' +
+                        // Order Summary
+                        '<div style="border:1px solid #e3ede8;border-radius:14px;padding:18px 20px;margin-bottom:16px;">' +
+                        '<div style="font-size:.7rem;font-weight:700;color:#9ab8a9;letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px;">ORDER SUMMARY</div>' +
+                        '<div style="display:flex;justify-content:space-between;font-size:.88rem;color:#2a4e3c;margin-bottom:8px;"><span>One-time setup fee</span><span style="font-weight:700;">' + setupAmt + '</span></div>' +
+                        '<div style="display:flex;justify-content:space-between;font-size:.82rem;color:#2a4e3c;margin-bottom:12px;padding:8px 12px;background:#f0f5f2;border-radius:8px;"><span>' + planLabel + '</span><span style="color:#9ab8a9;font-weight:600;">Billed after activation</span></div>' +
+                        '<div style="border-top:1px solid #e3ede8;padding-top:12px;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:.9rem;font-weight:700;color:#0c1c14;">Due today</span><span style="font-family:\'Sora\',sans-serif;font-size:1.2rem;font-weight:800;color:#0c1c14;">$2,000.00</span></div>' +
+                        '</div>' +
+                        '<div style="display:flex;gap:8px;margin-bottom:16px;">' +
+                        '<button id="pr-pay-gcash" onclick="document.getElementById(\'pr-gcash-details\').style.display=\'block\';document.getElementById(\'pr-saligpay-details\').style.display=\'none\';[...document.querySelectorAll(\'.pr-pay-tab\')].forEach(b=>{b.style.background=\'#e8f0ff\';b.style.color=\'#1555C0\';});this.style.background=\'#1555C0\';this.style.color=\'#fff\';" class="pr-pay-tab" style="flex:1;padding:10px;border-radius:12px;border:none;background:#1555C0;color:#fff;font-family:\'DM Sans\',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">💙 GCash</button>' +
+                        '<button id="pr-pay-saligpay" onclick="document.getElementById(\'pr-saligpay-details\').style.display=\'block\';document.getElementById(\'pr-gcash-details\').style.display=\'none\';[...document.querySelectorAll(\'.pr-pay-tab\')].forEach(b=>{b.style.background=\'#e8f0ff\';b.style.color=\'#1555C0\';});this.style.background=\'#1555C0\';this.style.color=\'#fff\';" class="pr-pay-tab" style="flex:1;padding:10px;border-radius:12px;border:none;background:#e8f0ff;color:#1555C0;font-family:\'DM Sans\',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;">🟠 SaligPay</button>' +
+                        '</div>' +
+
+                        // ── GCASH TAB ──
+                        '<div id="pr-gcash-details" style="display:block;background:#f0f7ff;border:1px solid #c8dff8;border-radius:14px;padding:18px 20px;margin-bottom:16px;">' +
+                        '<div style="font-size:.7rem;font-weight:700;color:#1555C0;letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;">' +
+                        '💙 GCash Payment Details' +
+                        '</div>' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
+                        '<div>' +
+                        '<div style="font-size:.7rem;color:#6a8b7c;font-weight:600;margin-bottom:2px;">Account Name</div>' +
+                        '<div style="font-size:.88rem;font-weight:700;color:#0c1c14;">JENALYN VALLER</div>' +
+                        '</div>' +
+                        '<button onclick="navigator.clipboard.writeText(\'JENALYN VALLER\');this.textContent=\'Copied!\';setTimeout(()=>this.textContent=\'Copy\',1500)" style="background:#e8f0ff;border:none;border-radius:8px;padding:6px 10px;font-size:.72rem;font-weight:700;color:#1555C0;cursor:pointer;">Copy</button>' +
+                        '</div>' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">' +
+                        '<div>' +
+                        '<div style="font-size:.7rem;color:#6a8b7c;font-weight:600;margin-bottom:2px;">GCash Number</div>' +
+                        '<div style="font-size:.88rem;font-weight:700;color:#0c1c14;">0917 123 4567</div>' +
+                        '</div>' +
+                        '<button onclick="navigator.clipboard.writeText(\'09171234567\');this.textContent=\'Copied!\';setTimeout(()=>this.textContent=\'Copy\',1500)" style="background:#e8f0ff;border:none;border-radius:8px;padding:6px 10px;font-size:.72rem;font-weight:700;color:#1555C0;cursor:pointer;">Copy</button>' +
+                        '</div>' +
+                        '<div style="border-top:1px solid #ddeaf8;padding-top:14px;">' +
+                        '<div style="font-size:.7rem;color:#6a8b7c;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">Or scan QR Code</div>' +
+                        '<div style="display:flex;flex-direction:column;align-items:center;gap:10px;">' +
+                        '<img id="pr-gcash-qr-img" src="" alt="GCash QR" style="width:140px;height:140px;border-radius:12px;border:2px solid #ddeaf8;object-fit:contain;display:none;" />' +
+                        '<label style="display:inline-flex;align-items:center;gap:8px;padding:8px 18px;background:#26a676;color:#fff;border-radius:100px;font-size:.78rem;font-weight:700;cursor:pointer;">' +
+                        '📤 Upload GCash QR' +
+                        '<input type="file" accept="image/*" style="display:none;" onchange="var img=document.getElementById(\'pr-gcash-qr-img\');var r=new FileReader();r.onload=function(e){img.src=e.target.result;img.style.display=\'block\';};r.readAsDataURL(this.files[0]);" />' +
+                        '</label>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+
+                        // ── SALIGPAY TAB ──
+                        '<div id="pr-saligpay-details" style="display:none;background:#fff8f0;border:1px solid #ffd8a8;border-radius:14px;padding:18px 20px;margin-bottom:16px;">' +
+                        '<div style="font-size:.7rem;font-weight:700;color:#c05c00;letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px;">' +
+                        '🟠 SaligPay Payment Details' +
+                        '</div>' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
+                        '<div>' +
+                        '<div style="font-size:.7rem;color:#6a8b7c;font-weight:600;margin-bottom:2px;">Account Name</div>' +
+                        '<div style="font-size:.88rem;font-weight:700;color:#0c1c14;">JENALYN VALLER</div>' +
+                        '</div>' +
+                        '<button onclick="navigator.clipboard.writeText(\'JENALYN VALLER\');this.textContent=\'Copied!\';setTimeout(()=>this.textContent=\'Copy\',1500)" style="background:#ffe8cc;border:none;border-radius:8px;padding:6px 10px;font-size:.72rem;font-weight:700;color:#c05c00;cursor:pointer;">Copy</button>' +
+                        '</div>' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">' +
+                        '<div>' +
+                        '<div style="font-size:.7rem;color:#6a8b7c;font-weight:600;margin-bottom:2px;">SaligPay Number</div>' +
+                        '<div style="font-size:.88rem;font-weight:700;color:#0c1c14;">0917 123 4567</div>' +
+                        '</div>' +
+                        '<button onclick="navigator.clipboard.writeText(\'09171234567\');this.textContent=\'Copied!\';setTimeout(()=>this.textContent=\'Copy\',1500)" style="background:#ffe8cc;border:none;border-radius:8px;padding:6px 10px;font-size:.72rem;font-weight:700;color:#c05c00;cursor:pointer;">Copy</button>' +
+                        '</div>' +
+                        '<div style="border-top:1px solid #ffd8a8;padding-top:14px;">' +
+                        '<div style="font-size:.7rem;color:#6a8b7c;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">Or scan QR Code</div>' +
+                        '<div style="display:flex;flex-direction:column;align-items:center;gap:10px;">' +
+                        '<img id="pr-saligpay-qr-img" src="" alt="SaligPay QR" style="width:140px;height:140px;border-radius:12px;border:2px solid #ffd8a8;object-fit:contain;display:none;" />' +
+                        '<label style="display:inline-flex;align-items:center;gap:8px;padding:8px 18px;background:#e87c00;color:#fff;border-radius:100px;font-size:.78rem;font-weight:700;cursor:pointer;">' +
+                        '📤 Upload SaligPay QR' +
+                        '<input type="file" accept="image/*" style="display:none;" onchange="var img=document.getElementById(\'pr-saligpay-qr-img\');var r=new FileReader();r.onload=function(e){img.src=e.target.result;img.style.display=\'block\';};r.readAsDataURL(this.files[0]);" />' +
+                        '</label>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div style="background:#fffbe6;border:1px solid #f5e08a;border-radius:10px;padding:12px 16px;font-size:.82rem;color:#7a6a00;display:flex;align-items:flex-start;gap:8px;margin-bottom:4px;">' +
+                        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+                        '<span>ACH transfers are <strong>free</strong> (1–3 business days). Wire transfers cost $15 but arrive same day. After sending, <strong>email us your receipt</strong> and we\'ll activate your account within 24 hours.</span>' +
+                        '</div>';
+
+                    foot.innerHTML = '<button id="pr-back" style="display:inline-flex;align-items:center;gap:6px;background:none;border:none;font-family:\'DM Sans\',sans-serif;font-size:.88rem;color:#9ab8a9;cursor:pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back</button>' +
+                        '<button id="pr-pay" style="display:inline-flex;align-items:center;gap:8px;padding:13px 24px;background:#26a676;color:#fff;font-family:\'DM Sans\',sans-serif;font-size:.92rem;font-weight:700;border:none;border-radius:100px;cursor:pointer;box-shadow:0 6px 20px rgba(38,166,118,.35);">I\'ve Sent My Payment ✓</button>';
+
+                    setTimeout(function () {
+                        var prBack = document.getElementById('pr-back');
+                        var prPay = document.getElementById('pr-pay');
+                        if (prBack) prBack.addEventListener('click', function () { pricingCur = 1; pricingRender(); });
+                        if (prPay) prPay.addEventListener('click', function () {
+                            // ── GUARD: isang click lang, bawal double-click ──
+                            if (prPay.dataset.submitted === 'true') return;
+                            prPay.dataset.submitted = 'true';
+                            prPay.disabled = true;
+                            prPay.style.pointerEvents = 'none';
+                            prPay.style.opacity = '0.75';
+                            prPay.style.background = '#6a8b7c';
+                            prPay.textContent = '⏳ Sending...';
+
+                            // --- STEP 1: PAYMENT INTENT WEBHOOK TRIGGER ---
+                            fetch('https://services.leadconnectorhq.com/hooks/tNBNUWL2UsKDlnI8KfJk/webhook-trigger/fb0aafca-c563-46f6-8201-e247c57893ca', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    first_name: pricingAnswers.name ? pricingAnswers.name.split(' ')[0] : '',
+                                    last_name: pricingAnswers.name ? pricingAnswers.name.split(' ').slice(1).join(' ') : '',
+                                    email: pricingAnswers.email || '',
+                                    plan: pricingAnswers.plan === 'starter' ? 'Starter - $1,500/mo' : 'Growth - $2,500/mo',
+                                    properties: pricingAnswers.props || '',
+                                    platforms: pricingAnswers.platforms ? pricingAnswers.platforms.join(', ') : '',
+                                    payment_status: 'Pending - Awaiting GCash Confirmation',
+                                    setup_fee: '$2,000.00',
+                                    source: 'HostPilot Website'
+                                })
+                            }).then(function (response) {
+                                // SUCCESS — permanently locked, show confirmed state
+                                prPay.textContent = '✅ Received! We\'ll confirm within 24 hours.';
+                                prPay.style.background = '#1e8760';
+                                prPay.style.opacity = '1';
+                                console.log('Payment Intent sent to HostPilot!', response);
+                            }).catch(function (error) {
+                                // ERROR — i-reset para makapag-retry, pero once lang ulit
+                                console.error('Webhook Error:', error);
+                                prPay.dataset.submitted = 'false';
+                                prPay.disabled = false;
+                                prPay.style.pointerEvents = 'auto';
+                                prPay.style.opacity = '1';
+                                prPay.style.background = '#26a676';
+                                prPay.textContent = "I've Sent My Payment ✓";
+                                alert('Something went wrong. Please try again.');
+                            });
+                            // --- END OF STEP 1 WEBHOOK ---
+                        });
+                    }, 0);
+                }
+            }
+
+            document.querySelectorAll('.hp-btn-primary, .cta-btn-primary').forEach(function (btn) {
+                btn.onclick = function (e) { e.preventDefault(); openPricing(); };
+            });
+            document.querySelectorAll('.cta-btn-secondary').forEach(function (btn) {
+                btn.onclick = function (e) { e.preventDefault(); openSetup(); };
+            });
+
+            // Fix "See How It Works" button — separate handler
+            document.getElementById('hp-open').onclick = function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                overlay.classList.add('open');
+                document.body.style.overflow = 'hidden';
+                cur = 0; answers = {}; sel = null; render();
+            };
+            var HP_API_BASE = 'https://hostpilot-smoobu.onrender.com';
+            var HP_LOGIN_URL = '/login';
+
+            // State for filters
+            var hpDashState = {
+                from: null,
+                to: null,
+                preset: 'ytd',
+                channels: [],
+                view: 'multi',
+                rawData: null,
+                calBaseDate: null,
+                calDaysCount: 90,
+            };
+
+            // ── AUTH HELPERS ───────────────────────────────────────────────────
+            var hpAuth = {
+                getToken: function () { return sessionStorage.getItem('hp_access_token'); },
+                getUser: function () {
+                    try { return JSON.parse(sessionStorage.getItem('hp_user') || 'null'); }
+                    catch (e) { return null; }
+                },
+                setToken: function (t) { sessionStorage.setItem('hp_access_token', t); },
+                clear: function () {
+                    sessionStorage.removeItem('hp_access_token');
+                    sessionStorage.removeItem('hp_user');
+                }
+            };
+
+            async function hpAuthFetch(path, options) {
+                options = options || {};
+                var token = hpAuth.getToken();
+                if (!token) return null;
+
+                var opts = Object.assign({}, options, {
+                    headers: Object.assign({}, options.headers || {}, {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }),
+                    credentials: 'include'
+                });
+
+                var res = await fetch(HP_API_BASE + path, opts);
+
+                if (res.status === 401) {
+                    var refreshed = await hpTryRefresh();
+                    if (refreshed) {
+                        opts.headers['Authorization'] = 'Bearer ' + hpAuth.getToken();
+                        res = await fetch(HP_API_BASE + path, opts);
+                    } else {
+                        hpAuth.clear();
+                        return null;
+                    }
+                }
+                return res;
+            }
+
+            async function hpTryRefresh() {
+                try {
+                    var res = await fetch(HP_API_BASE + '/auth/refresh', {
+                        method: 'POST', credentials: 'include'
+                    });
+                    if (!res.ok) return false;
+                    var data = await res.json();
+                    hpAuth.setToken(data.accessToken);
+                    return true;
+                } catch (e) { return false; }
+            }
+
+            // ── HELPERS ────────────────────────────────────────────────────────
+            function hpFmtMoney(n) {
+                return '₱' + Number(n || 0).toLocaleString('en-US', {
+                    minimumFractionDigits: 2, maximumFractionDigits: 2
+                });
+            }
+
+            function hpFmtDate(iso) {
+                if (!iso) return '';
+                var d = new Date(iso);
+                var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                return days[d.getDay()] + ' ' +
+                    String(d.getDate()).padStart(2, '0') + '.' +
+                    String(d.getMonth() + 1).padStart(2, '0') + '.' +
+                    d.getFullYear();
+            }
+
+            function hpTimeAgo(iso) {
+                if (!iso) return '';
+                var diff = (Date.now() - new Date(iso).getTime()) / 1000;
+                if (diff < 60) return Math.floor(diff) + 's ago';
+                if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+                if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+                return Math.floor(diff / 86400) + 'd ago';
+            }
+
+            function hpEscapeHtml(s) {
+                return String(s || '').replace(/[&<>"']/g, function (c) {
+                    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+                });
+            }
+
+            function hpToISODate(d) {
+                var year = d.getFullYear();
+                var month = String(d.getMonth() + 1).padStart(2, '0');
+                var day = String(d.getDate()).padStart(2, '0');
+                return year + '-' + month + '-' + day;
+            }
+
+            // ── Bulletproof date helpers (no timezone math) ──
+            function hpToYMD(input) {
+                if (!input) return '';
+                if (typeof input === 'string') {
+                    // Slice the first 10 characters — always "YYYY-MM-DD"
+                    // This ignores any trailing time/timezone, which is what we want:
+                    // Smoobu's "arrival" date means the CALENDAR day, not a UTC moment.
+                    return input.slice(0, 10);
+                }
+                if (input instanceof Date) {
+                    // Use local year/month/day (not UTC) so the calendar day matches
+                    var y = input.getFullYear();
+                    var m = String(input.getMonth() + 1).padStart(2, '0');
+                    var d = String(input.getDate()).padStart(2, '0');
+                    return y + '-' + m + '-' + d;
+                }
+                return '';
+            }
+
+            function hpDayDiff(ymd1, ymd2) {
+                var d1 = new Date(ymd1 + 'T12:00:00');
+                var d2 = new Date(ymd2 + 'T12:00:00');
+                return Math.round((d2 - d1) / 86400000);
+            }
+
+            function hpFmtDateShort(iso) {
+                if (!iso) return '';
+                var d = new Date(iso);
+                var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+            }
+
+            var HP_CHANNEL_COLORS = {
+                'Airbnb': '#ec4899',
+                'Booking.com': '#3b82f6',
+                'VRBO': '#8b5cf6',
+                'Agoda': '#64748b',
+                'Direct': '#10b981',
+                'Direct booking': '#10b981',
+                'Website': '#94a3b8',
+                'W': '#94a3b8',
+                'Facebook': '#1877F2',
+                'WhatsApp': '#25D366'
+            };
+
+            var HP_CHANNEL_PILL_CLASS = {
+                'Airbnb': 'cal-pill-airbnb',
+                'Booking.com': 'cal-pill-booking',
+                'VRBO': 'cal-pill-vrbo',
+                'Agoda': 'cal-pill-agoda',
+                'Direct': 'cal-pill-direct',
+                'Direct booking': 'cal-pill-direct',
+                'Website': 'cal-pill-website',
+                'W': 'cal-pill-website',
+                'Facebook': 'cal-pill-booking',
+                'WhatsApp': 'cal-pill-direct'
+            };
+
+            // ── PRESET DATE RANGES ─────────────────────────────────────────────
+            function hpGetPresetRange(preset) {
+                var today = new Date();
+                var from, to = new Date(today);
+                switch (preset) {
+                    case 'ytd':
+                        from = new Date(today.getFullYear(), 0, 1);
+                        break;
+                    case 'mtd':
+                        from = new Date(today.getFullYear(), today.getMonth(), 1);
+                        break;
+                    case 'last30':
+                        from = new Date(today);
+                        from.setDate(from.getDate() - 30);
+                        break;
+                    case 'last7':
+                        from = new Date(today);
+                        from.setDate(from.getDate() - 7);
+                        break;
+                    case 'thismonth':
+                        from = new Date(today.getFullYear(), today.getMonth(), 1);
+                        to = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                        break;
+                    case 'lastmonth':
+                        from = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                        to = new Date(today.getFullYear(), today.getMonth(), 0);
+                        break;
+                    default:
+                        from = new Date(today.getFullYear(), 0, 1);
+                }
+                return { from: hpToISODate(from), to: hpToISODate(to) };
+            }
+
+            // ── RENDERERS ─────────────────────────────────────────────────────
+            function hpRenderStats(data) {
+                var stats = data.stats || {};
+                var boxes = document.querySelectorAll('.db-grid-4 .stat-box');
+
+                if (boxes[0]) {
+                    boxes[0].querySelector('.stat-val').textContent = hpFmtMoney(stats.revenue);
+                    boxes[0].querySelector('.stat-sub').textContent = (stats.nights || 0) + ' Nights total';
+                }
+                if (boxes[1]) {
+                    boxes[1].querySelector('.stat-val').textContent = stats.bookings || 0;
+                    boxes[1].querySelector('.stat-sub').textContent = (stats.nights || 0) + ' Nights total';
+                }
+                if (boxes[2]) {
+                    boxes[2].querySelector('.stat-val').textContent = stats.cancellations || 0;
+                    boxes[2].querySelector('.stat-sub').textContent = (stats.cancellationNights || 0) + ' Nights affected';
+                }
+
+                var occBoxes = document.querySelectorAll('.db-grid-4 > .db-card');
+                var occBox = occBoxes[3];
+                if (occBox) {
+                    var text = occBox.querySelector('text');
+                    if (text) text.textContent = (stats.occupancy || 0) + '%';
+                    var arc = occBox.querySelector('path[stroke="#1555C0"]');
+                    if (arc) {
+                        var angle = ((stats.occupancy || 0) / 100) * 180;
+                        var rad = (angle - 180) * Math.PI / 180;
+                        var x = 55 + 45 * Math.cos(rad);
+                        var y = 60 + 45 * Math.sin(rad);
+                        var largeArc = angle > 180 ? 1 : 0;
+                        arc.setAttribute('d', 'M 10 60 A 45 45 0 ' + largeArc + ' 1 ' + x.toFixed(2) + ' ' + y.toFixed(2));
+                    }
+                }
+            }
+
+            function hpChannelBadge(channel) {
+                var color = HP_CHANNEL_COLORS[channel] || '#56c299';
+
+                var OTA_LOGOS = {
+                    'Airbnb': 'https://assets.cdn.filesafe.space/tNBNUWL2UsKDlnI8KfJk/media/69f3316cbb6377d896971540.webp',
+                    'Booking.com': 'https://assets.cdn.filesafe.space/tNBNUWL2UsKDlnI8KfJk/media/69f3316ca6108a48581e1e5e.png',
+                    'VRBO': 'https://assets.cdn.filesafe.space/tNBNUWL2UsKDlnI8KfJk/media/69f3316cd6968461206d86d0.png',
+                    'Agoda': 'https://assets.cdn.filesafe.space/tNBNUWL2UsKDlnI8KfJk/media/69f3316cbb6377d896971541.webp',
+                };
+
+                var logoUrl = OTA_LOGOS[channel];
+
+                if (logoUrl) {
+                    // Use real logo image — white rounded background so logos show clearly
+                    return '<span class="cal-pill-ic" style="background:#fff;border:1px solid #e3ede8;overflow:hidden;">' +
+                        '<img src="' + logoUrl + '" alt="' + hpEscapeHtml(channel) + '" ' +
+                        'style="width:18px;height:18px;object-fit:contain;display:block;" ' +
+                        'onerror="this.parentElement.style.background=\'' + color + '\';this.style.display=\'none\';" />' +
+                        '</span>';
+                }
+
+                // Fallback for channels without a logo image
+                var inner = '';
+
+                if (channel === 'Direct' || channel === 'Direct booking') {
+                    inner = '<span style="font-size:9px;font-weight:800;color:#fff;font-family:\'DM Sans\',sans-serif;line-height:1;">D</span>';
+                    color = '#10b981';
+                } else if (channel === 'Website' || channel === 'W') {
+                    inner = '<span style="font-size:9px;font-weight:800;color:#fff;font-family:\'DM Sans\',sans-serif;line-height:1;">W</span>';
+                    color = '#94a3b8';
+                } else if (channel === 'Facebook') {
+                    inner = '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.532-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.269h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>';
+                    color = '#1877F2';
+                } else if (channel === 'WhatsApp') {
+                    inner = '<svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
+                    color = '#25D366';
+                } else {
+                    // Generic: first letter of channel name
+                    inner = '<span style="font-size:9px;font-weight:800;color:#fff;">' + (channel[0] || '?').toUpperCase() + '</span>';
+                }
+
+                return '<span class="cal-pill-ic" style="background:' + color + ';">' + inner + '</span>';
+            }
+
+            function hpRenderCalendar(data) {
+                var tbody = document.querySelector('.cal-table tbody');
+                var thead = document.querySelector('.cal-table thead');
+                if (!tbody || !thead) return;
+
+                if (!hpDashState.calBaseDate) {
+                    var t = new Date();
+                    t.setDate(t.getDate() - 14);
+                    hpDashState.calBaseDate = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+                }
+
+                hpMountCalendarNav();
+
+                var properties = data.properties || [];
+                var allBookings = (data.bookings || []).filter(function (b) {
+                    if (b.type === 'cancellation') return false;
+                    if (b['is-blocked-booking']) return false;
+                    if (hpDashState.channels.length > 0) {
+                        var ch = (b.channel && b.channel.name) || 'Direct';
+                        if (hpDashState.channels.indexOf(ch) === -1) return false;
+                    }
+                    return true;
+                });
+
+                // ── Build dateRange + parallel YMD strings ──
+                var dateRange = [];
+                var ymdRange = [];
+                var startDate = new Date(hpDashState.calBaseDate);
+                startDate.setHours(12, 0, 0, 0);  // noon dodges DST edges
+                for (var i = 0; i < hpDashState.calDaysCount; i++) {
+                    var d = new Date(startDate);
+                    d.setDate(startDate.getDate() + i);
+                    dateRange.push(d);
+                    ymdRange.push(hpToISODate(d));
+                }
+
+                // ── DEBUG (one-time): verify Smoobu date format ──
+                if (!hpDashState._debuggedDates && allBookings.length > 0) {
+                    hpDashState._debuggedDates = true;
+                    console.log('[Calendar Debug] Window:', ymdRange[0], '→', ymdRange[ymdRange.length - 1]);
+                    console.log('[Calendar Debug] Sample bookings:');
+                    allBookings.slice(0, 5).forEach(function (b) {
+                        console.log('  arrival:', JSON.stringify(b.arrival),
+                            '| departure:', JSON.stringify(b.departure),
+                            '| guest:', b['guest-name']);
+                    });
+                }
+
+                // Update nav label
+                var navLabel = document.getElementById('cal-nav-label');
+                if (navLabel) {
+                    var firstD = dateRange[0];
+                    var lastD = dateRange[dateRange.length - 1];
+                    var monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    if (firstD.getMonth() === lastD.getMonth() && firstD.getFullYear() === lastD.getFullYear()) {
+                        navLabel.textContent = monthsShort[firstD.getMonth()] + ' ' + firstD.getFullYear();
+                    } else {
+                        navLabel.textContent = monthsShort[firstD.getMonth()] + ' – ' + monthsShort[lastD.getMonth()] + ' ' + lastD.getFullYear();
+                    }
+                }
+
+                if (!properties.length) {
+                    thead.innerHTML = '';
+                    tbody.innerHTML = '<tr><td style="padding:40px;text-align:center;color:#9ab8a9;font-size:.88rem;">No properties found.</td></tr>';
+                    return;
+                }
+
+                // Build month groups for header
+                var monthFullNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                var monthGroups = [];
+                dateRange.forEach(function (d) {
+                    var key = d.getFullYear() + '-' + d.getMonth();
+                    var last = monthGroups[monthGroups.length - 1];
+                    if (!last || last.key !== key) {
+                        monthGroups.push({ key: key, label: monthFullNames[d.getMonth()] + ' ' + d.getFullYear(), count: 1 });
+                    } else {
+                        last.count++;
+                    }
+                });
+
+                var todayISO = hpToISODate(new Date());
+                var dayShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                var rangeStartYMD = ymdRange[0];
+                var rangeEndYMD = ymdRange[ymdRange.length - 1];
+
+                // Build thead (2 rows)
+                var monthRowHTML = '<tr class="cal-month-row"><th class="cal-prop-col">Property</th>';
+                monthGroups.forEach(function (g) {
+                    monthRowHTML += '<th class="cal-month-label" colspan="' + g.count + '">' + g.label + '</th>';
+                });
+                monthRowHTML += '</tr>';
+
+                var dayRowHTML = '<tr class="cal-day-row"><th class="cal-prop-col"></th>';
+                dateRange.forEach(function (d) {
+                    var dayNum = d.getDate();
+                    var isToday = hpToISODate(d) === todayISO;
+                    var isWeekend = d.getDay() === 0 || d.getDay() === 6;
+                    var isMonthStart = dayNum === 1;
+                    var classes = [];
+                    if (isToday) classes.push('today');
+                    if (isWeekend) classes.push('weekend');
+                    if (isMonthStart) classes.push('month-start');
+                    dayRowHTML += '<th' + (classes.length ? ' class="' + classes.join(' ') + '"' : '') + '>' +
+                        dayShort[d.getDay()] +
+                        '<span class="day-num">' + dayNum + '</span>' +
+                        '</th>';
+                });
+                dayRowHTML += '</tr>';
+
+                thead.innerHTML = monthRowHTML + dayRowHTML;
+
+                // Build tbody — pure string comparison, no Date math
+                var propLimit = hpDashState.view === 'single' ? 1 : 50;
+
+                var rows = properties.slice(0, propLimit).map(function (prop) {
+                    var cells = '<td class="cal-prop-col">' + hpEscapeHtml(prop.name) + '</td>';
+
+                    // ── 1. Get all bookings for this property that overlap the window ──
+                    var propBookings = allBookings.filter(function (b) {
+                        if (!b.apartment || b.apartment.id !== prop.id) return false;
+                        // Extra guard: skip blocked/null-guest bookings
+                        if (!b['guest-name'] && b['is-blocked-booking']) return false;
+                        var arrYMD = hpToYMD(b.arrival);
+                        var depYMD = hpToYMD(b.departure);
+                        return arrYMD <= rangeEndYMD && depYMD > rangeStartYMD;
+                    });
+
+                    // ── 2. Sort bookings by their effective start column ──
+                    // (bookings that started before window start sort to column 0)
+                    propBookings.sort(function (a, b) {
+                        var aArr = hpToYMD(a.arrival) < rangeStartYMD ? rangeStartYMD : hpToYMD(a.arrival);
+                        var bArr = hpToYMD(b.arrival) < rangeStartYMD ? rangeStartYMD : hpToYMD(b.arrival);
+                        return aArr < bArr ? -1 : aArr > bArr ? 1 : 0;
+                    });
+
+                    // ── 3. Build a column-index map: ymd → column index ──
+                    var ymdToIdx = {};
+                    ymdRange.forEach(function (ymd, i) { ymdToIdx[ymd] = i; });
+
+                    // ── 4. Place each booking into a cell map ──
+                    // cellMap[idx] = { booking, renderSpan }
+                    var cellMap = {};
+                    var occupiedUntil = -1; // track rightmost occupied column
+
+                    propBookings.forEach(function (booking) {
+                        var arrYMD = hpToYMD(booking.arrival);
+                        var depYMD = hpToYMD(booking.departure);
+
+                        // Find the column where this booking should START rendering
+                        // If arrival is before the window, it starts at column 0
+                        var startIdx = arrYMD < rangeStartYMD ? 0 : (ymdToIdx[arrYMD] !== undefined ? ymdToIdx[arrYMD] : -1);
+
+                        // If the arrival date isn't in our window columns, skip
+                        if (startIdx < 0) return;
+
+                        // Calculate how many columns to span from startIdx
+                        var daysFromStart = hpDayDiff(ymdRange[startIdx], depYMD);
+                        var renderSpan = Math.max(1, Math.min(daysFromStart, ymdRange.length - startIdx));
+
+                        // Store in cellMap
+                        cellMap[startIdx] = { booking: booking, renderSpan: renderSpan };
+                    });
+
+                    // ── 5. Build HTML cells left-to-right ──
+                    var skipUntil = -1; // columns occupied by a spanning pill
+
+                    ymdRange.forEach(function (dayStr, idx) {
+                        var day = dateRange[idx];
+                        var isToday = dayStr === todayISO;
+                        var isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                        var isMonthStart = day.getDate() === 1;
+
+                        var tdClasses = [];
+                        if (isToday) tdClasses.push('today-col');
+                        if (isWeekend) tdClasses.push('weekend-col');
+                        if (isMonthStart) tdClasses.push('month-start');
+
+                        var tdAttr = tdClasses.length ? ' class="' + tdClasses.join(' ') + '"' : '';
+
+                        // This column is inside a spanning pill — skip it (no <td> emitted,
+                        // because the spanning pill already "consumed" these columns via colspan-like width)
+                        if (idx <= skipUntil) {
+                            // We still need a <td> for the table structure — just empty
+                            cells += '<td' + tdAttr + '></td>';
+                            return;
+                        }
+
+                        var entry = cellMap[idx];
+                        if (entry) {
+                            var booking = entry.booking;
+                            var renderSpan = entry.renderSpan;
+
+                            // Mark columns consumed by this pill
+                            skipUntil = idx + renderSpan - 1;
+
+                            var channel = (booking.channel && booking.channel.name) || 'Direct';
+                            var guests = (booking.adults || 0) + (booking.children || 0);
+                            var pillClass = HP_CHANNEL_PILL_CLASS[channel] || 'cal-pill-default';
+                            var depYMD = hpToYMD(booking.departure);
+
+                            cells +=
+                                '<td' + tdAttr + '>' +
+                                '<div class="cal-pill ' + pillClass + '" ' +
+                                'style="width:calc(' + (renderSpan * 100) + '% - 6px); left:3px;" ' +
+                                'title="' + hpEscapeHtml(
+                                    (booking['guest-name'] || 'Guest') + ' · ' + channel +
+                                    ' · ' + (guests || 1) + ' guest(s)' +
+                                    ' · ' + hpFmtMoney(booking.price) +
+                                    ' · ' + hpToYMD(booking.arrival) + ' → ' + depYMD
+                                ) + '">' +
+                                hpChannelBadge(channel) +
+                                '<span class="pill-text">' + hpEscapeHtml(booking['guest-name'] || 'Guest') + '</span>' +
+                                '<span class="pill-meta">' + (guests || 1) + ' · ' + hpFmtMoney(booking.price) + '</span>' +
+                                '</div>' +
+                                '</td>';
+                        } else {
+                            cells += '<td' + tdAttr + '></td>';
+                        }
+                    });
+
+                    return '<tr>' + cells + '</tr>';
+                }).join('');
+
+                tbody.innerHTML = rows;
+
+                if (hpDashState._calShouldScrollToToday !== false) {
+                    setTimeout(hpScrollCalendarToToday, 50);
+                    hpDashState._calShouldScrollToToday = false;
+                }
+            }
+
+            // ── Mount the navigation bar above the calendar table ──
+            function hpMountCalendarNav() {
+                var calCard = document.querySelector('.db-card .cal-scroll');
+                if (!calCard) return;
+                if (document.getElementById('cal-nav-bar')) return; // already mounted
+
+                var nav = document.createElement('div');
+                nav.className = 'cal-nav';
+                nav.id = 'cal-nav-bar';
+                nav.innerHTML =
+                    '<button class="cal-nav-btn" id="cal-nav-prev" title="Previous month">' +
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>' +
+                    '</button>' +
+                    '<button class="cal-nav-btn" id="cal-nav-next" title="Next month">' +
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>' +
+                    '</button>' +
+                    '<span class="cal-nav-label" id="cal-nav-label">Loading...</span>' +
+                    '<button class="cal-nav-today" id="cal-nav-today">Today</button>';
+
+                calCard.parentElement.insertBefore(nav, calCard);
+
+                document.getElementById('cal-nav-prev').onclick = function () { hpShiftCalendar(-30); };
+                document.getElementById('cal-nav-next').onclick = function () { hpShiftCalendar(30); };
+                document.getElementById('cal-nav-today').onclick = function () {
+                    var t = new Date();
+                    hpDashState.calBaseDate = new Date(t.getFullYear(), t.getMonth(), 1);
+                    hpDashState._calShouldScrollToToday = true;
+                    if (hpDashState.rawData) hpRenderCalendar(hpDashState.rawData);
+                };
+            }
+
+            // ── Shift calendar window by delta days ──
+            function hpShiftCalendar(deltaDays) {
+                var d = new Date(hpDashState.calBaseDate);
+                d.setDate(d.getDate() + deltaDays);
+                hpDashState.calBaseDate = d;
+                if (hpDashState.rawData) hpRenderCalendar(hpDashState.rawData);
+            }
+
+            // ── Auto-scroll to today position ──
+            function hpScrollCalendarToToday() {
+                var scroller = document.querySelector('.cal-scroll');
+                if (!scroller) return;
+                var todayCell = document.querySelector('.cal-day-row th.today');
+                if (!todayCell) {
+                    scroller.scrollLeft = 0;
+                    return;
+                }
+                // Center today in the visible scroll area
+                var stickyColWidth = 200;
+                var cellLeft = todayCell.offsetLeft;
+                var visibleWidth = scroller.clientWidth - stickyColWidth;
+                scroller.scrollLeft = Math.max(0, cellLeft - stickyColWidth - (visibleWidth / 2) + 32);
+            }
+
+            function hpRenderInbox(data) {
+                var inbox = data.inbox || [];
+                var list = document.querySelector('.inbox-list');
+                var footerLink = document.querySelector('.inbox-footer a');
+                if (!list) return;
+
+                if (!inbox.length) {
+                    list.innerHTML = '<div style="padding:30px;text-align:center;color:#9ab8a9;font-size:.85rem;">No messages yet.</div>';
+                    if (footerLink) footerLink.textContent = 'View all messages →';
+                    return;
+                }
+
+                var liveBadge = document.querySelector('.live-badge');
+                if (liveBadge && data.totalUnread !== undefined) {
+                    if (data.totalUnread > 0) {
+                        liveBadge.innerHTML = '<span class="live-dot"></span> ' + data.totalUnread + ' unread';
+                        liveBadge.style.background = '#fff0ee';
+                        liveBadge.style.color = '#c13515';
+                    } else {
+                        liveBadge.innerHTML = '<span class="live-dot"></span> Live';
+                        liveBadge.style.background = '#d4f0e4';
+                        liveBadge.style.color = '#1e8760';
+                    }
+                }
+
+                list.innerHTML = inbox.map(function (t) {
+                    var channel = t.channel || 'Direct';
+                    var color = HP_CHANNEL_COLORS[channel] || '#56c299';
+                    var msg = (t.latestMessage && t.latestMessage.body) || '';
+
+                    // Strip HTML tags from message body
+                    var tmp = document.createElement('div');
+                    tmp.innerHTML = msg;
+                    var cleanMsg = (tmp.textContent || tmp.innerText || '').trim();
+                    if (cleanMsg.length > 90) cleanMsg = cleanMsg.slice(0, 90) + '...';
+                    if (!cleanMsg) cleanMsg = 'No preview available';
+
+                    var ts = t.latestMessage && t.latestMessage.createdAt;
+                    var fromGuest = t.latestMessage && t.latestMessage.fromGuest;
+                    var statusClass = fromGuest ? 'txt-blue' : 'txt-green';
+                    var statusText = fromGuest ? '⚠ Awaiting your reply' : '↳ Replied to guest';
+
+                    // Get channel initial for avatar
+                    var initial = (channel[0] || 'D').toUpperCase();
+
+                    return '<div class="inbox-item">' +
+                        '<div class="inbox-avatar" style="background:' + color + '22;color:' + color + ';font-weight:700;font-size:.85rem;">' + initial + '</div>' +
+                        '<div class="inbox-content">' +
+                        '<div class="inbox-top">' +
+                        '<span class="inbox-name">' + hpEscapeHtml(t.guestName || 'Guest') + '</span>' +
+                        '<span class="inbox-time ' + statusClass + '">' + hpTimeAgo(ts) + '</span>' +
+                        '</div>' +
+                        '<div class="inbox-prop">' + hpEscapeHtml(t.property || '') + ' · ' + hpEscapeHtml(channel) + '</div>' +
+                        '<div class="inbox-bubble">"' + hpEscapeHtml(cleanMsg) + '"</div>' +
+                        '<div class="inbox-status ' + statusClass + '">' + statusText + '</div>' +
+                        '</div>' +
+                        '</div>';
+                }).join('');
+
+                // Wire up clicks on inbox items
+                list.querySelectorAll('.inbox-item').forEach(function (item, idx) {
+                    item.onclick = function () {
+                        var thread = inbox[idx];
+                        if (!thread || !thread.reservationId) {
+                            alert('This thread has no reservation linked yet.');
+                            return;
+                        }
+                        mbOpenThread(thread.reservationId, thread);
+                    };
+                });
+
+                if (footerLink) {
+                    footerLink.textContent = 'View all ' + inbox.length + ' message' + (inbox.length !== 1 ? 's' : '') + ' →';
+                }
+            }
+
+            function hpRenderActivityFeed(data) {
+                var feed = document.querySelector('.feed-list');
+                if (!feed) return;
+
+                var recent = (data.bookings || [])
+                    .filter(function (b) {
+                        if (b.type === 'cancellation') return false;
+                        if (b['is-blocked-booking']) return false;
+                        if (hpDashState.channels.length > 0) {
+                            var ch = (b.channel && b.channel.name) || 'Direct';
+                            if (hpDashState.channels.indexOf(ch) === -1) return false;
+                        }
+                        return true;
+                    })
+                    .sort(function (a, b) { return new Date(b['created-at']) - new Date(a['created-at']); })
+                    .slice(0, 3);
+
+                if (!recent.length) {
+                    feed.innerHTML = '<div style="padding:30px;text-align:center;color:#9ab8a9;font-size:.85rem;">No recent bookings yet.</div>';
+                    return;
+                }
+
+                feed.innerHTML = recent.map(function (b) {
+                    var channel = (b.channel && b.channel.name) || 'Direct';
+                    var initial = channel[0] || 'D';
+                    var color = HP_CHANNEL_COLORS[channel] || '#56c299';
+                    var nights = Math.max(1, Math.round(
+                        (new Date(b.departure) - new Date(b.arrival)) / (1000 * 60 * 60 * 24)
+                    ));
+
+                    return '<div class="feed-item">' +
+                        '<div class="feed-row">' +
+                        '<div class="feed-left">' +
+                        '<div class="feed-avatar" style="background:' + color + '22;color:' + color + ';">' + initial + '</div>' +
+                        '<span class="feed-badge">New booking</span>' +
+                        '</div>' +
+                        '<div class="feed-stats">' +
+                        '<span class="feed-stat">' + hpFmtMoney(b.price) + '</span>' +
+                        '<span class="feed-stat">' + nights + ' night' + (nights > 1 ? 's' : '') + '</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="feed-info">' +
+                        '<div class="feed-guest">' + hpEscapeHtml(b['guest-name'] || 'Guest') + '</div>' +
+                        '<div class="feed-date">' + hpFmtDate(b.arrival) + '</div>' +
+                        '</div>' +
+                        '<div class="feed-prop">' + hpEscapeHtml((b.apartment && b.apartment.name) || '') + '</div>' +
+                        '<div class="feed-time">' + hpTimeAgo(b['created-at']) + '</div>' +
+                        '</div>';
+                }).join('');
+            }
+
+            function hpRenderPlatformBreakdown(data) {
+                var channels = data.byChannel || {};
+
+                // Apply channel filter
+                if (hpDashState.channels.length > 0) {
+                    var filtered = {};
+                    Object.keys(channels).forEach(function (k) {
+                        if (hpDashState.channels.indexOf(k) > -1) filtered[k] = channels[k];
+                    });
+                    channels = filtered;
+                }
+
+                var totalRev = Object.values(channels).reduce(function (a, c) { return a + c.revenue; }, 0);
+                var totalBk = Object.values(channels).reduce(function (a, c) { return a + c.bookings; }, 0);
+                var totalNt = Object.values(channels).reduce(function (a, c) { return a + c.nights; }, 0);
+                var cols = document.querySelectorAll('.donut-col');
+                if (!cols.length) return;
+
+                if (totalRev === 0) {
+                    cols.forEach(function (col) {
+                        col.querySelector('.donut').style.background = '#e3ede8';
+                        col.querySelector('.donut-legend').innerHTML = '<div style="color:#9ab8a9;">No data</div>';
+                    });
+                    return;
+                }
+
+                function buildLegend(metric, total) {
+                    return Object.entries(channels).map(function (entry) {
+                        var name = entry[0], v = entry[1];
+                        var pct = total ? Math.round((v[metric] / total) * 100) : 0;
+                        var color = HP_CHANNEL_COLORS[name] || '#56c299';
+                        return '<div><span class="donut-legend-dot" style="background:' + color + ';"></span>' + name + ' ' + pct + '%</div>';
+                    }).join('');
+                }
+
+                function buildConic(metric, total) {
+                    var cum = 0;
+                    var stops = Object.entries(channels).map(function (entry) {
+                        var name = entry[0], v = entry[1];
+                        var pct = total ? (v[metric] / total) * 100 : 0;
+                        var color = HP_CHANNEL_COLORS[name] || '#56c299';
+                        var s = color + ' ' + cum + '% ' + (cum + pct) + '%';
+                        cum += pct;
+                        return s;
+                    });
+                    return 'conic-gradient(' + stops.join(', ') + ')';
+                }
+
+                cols[0].querySelector('.donut-legend').innerHTML = buildLegend('revenue', totalRev);
+                cols[0].querySelector('.donut').style.background = buildConic('revenue', totalRev);
+                cols[1].querySelector('.donut-legend').innerHTML = buildLegend('bookings', totalBk);
+                cols[1].querySelector('.donut').style.background = buildConic('bookings', totalBk);
+                cols[2].querySelector('.donut-legend').innerHTML = buildLegend('nights', totalNt);
+                cols[2].querySelector('.donut').style.background = buildConic('nights', totalNt);
+            }
+
+            function hpSetBanner(text, color) {
+                var bar = document.querySelector('.db-demo-bar');
+                if (!bar) return;
+                bar.innerHTML = text;
+                if (color === 'live') { bar.style.background = '#d4f0e4'; bar.style.color = '#1e8760'; }
+                if (color === 'loading') { bar.style.background = '#fff8e1'; bar.style.color = '#7a6a00'; }
+                if (color === 'error') { bar.style.background = '#fff0ee'; bar.style.color = '#c13515'; }
+            }
+
+        })();
+    </script>
+</body>
+
+</html>
